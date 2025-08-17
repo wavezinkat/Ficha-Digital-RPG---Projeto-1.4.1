@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Image Upload
         document.getElementById('char-image-upload').addEventListener('change', handleImageUpload);
+        document.getElementById('apply-background-btn').addEventListener('click', applyCustomBackground);
 
         // Special case for dropdowns to show/hide sections
         document.getElementById('char-race').addEventListener('change', (e) => {
@@ -403,8 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedRaceName = document.getElementById('char-race').value;
         const selectedRaceData = RACIAL_FEATURES[selectedRaceName];
         
-        document.getElementById('char-speed').dataset.manual = document.getElementById('char-speed').value !== selectedRaceData.speed;
-
         // Clear old racial profs
         document.querySelectorAll('[data-racial-prof="true"]').forEach(el => {
             el.checked = false;
@@ -573,6 +572,13 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 
+    function applyCustomBackground() {
+        const url = document.getElementById('background-url-input').value;
+        if (url) {
+            document.body.style.backgroundImage = `url('${url}')`;
+        }
+    }
+
     // --- DATA PERSISTENCE ---
 
     function getCharacterDataAsObject() {
@@ -583,6 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selects: {},
             nationality: document.getElementById('char-nationality').value,
             portraitSrc: document.getElementById('char-portrait').src,
+            backgroundUrl: document.getElementById('background-url-input').value,
             dynamic: {
                 weapons: [],
                 equipment: [],
@@ -659,6 +666,11 @@ document.addEventListener('DOMContentLoaded', () => {
             portraitImg.src = data.portraitSrc;
             portraitImg.classList.remove('hidden');
             if(placeholderIcon) placeholderIcon.classList.add('hidden');
+        }
+
+        if (data.backgroundUrl) {
+            document.getElementById('background-url-input').value = data.backgroundUrl;
+            applyCustomBackground();
         }
 
         document.getElementById('char-race').dispatchEvent(new Event('change'));
@@ -770,4 +782,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
     });
- 
