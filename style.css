@@ -155,6 +155,10 @@ input[type="checkbox"]:disabled {
     margin-left: auto;
     margin-right: auto;
 }
+.str-req-failed {
+    border-color: var(--danger-color) !important;
+    box-shadow: 0 0 0 2px var(--danger-color);
+}
 /* Custom Dropdown for Flags */
 .custom-select-container {
     position: relative;
@@ -241,4 +245,12 @@ input[type="checkbox"]:disabled {
 .death-save:checked {
     background-color: var(--accent-color);
     border-color: var(--accent-color);
+}
+
+.resource-btn {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    padding: 0;
 }

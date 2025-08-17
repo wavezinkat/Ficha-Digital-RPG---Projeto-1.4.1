@@ -292,6 +292,22 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         }
     };
+
+    const COLETES = {
+        "Nenhum": { ac: 10, addDex: true, maxDex: null, strReq: 0, stealthDisadvantage: false, primaryAmmo: 2, secondaryAmmo: 2 },
+        "Roupa de Proteção": { ac: 11, addDex: true, maxDex: null, strReq: 0, stealthDisadvantage: false, primaryAmmo: 2, secondaryAmmo: 3 },
+        "Colete Leve": { ac: 11, addDex: true, maxDex: null, strReq: 0, stealthDisadvantage: false, primaryAmmo: 2, secondaryAmmo: 3 },
+        "Colete Alpha": { ac: 12, addDex: true, maxDex: null, strReq: 0, stealthDisadvantage: false, primaryAmmo: 3, secondaryAmmo: 3 },
+        "Roupa reforçada": { ac: 12, addDex: true, maxDex: 2, strReq: 0, stealthDisadvantage: false, primaryAmmo: 3, secondaryAmmo: 4 },
+        "Colete Medio": { ac: 13, addDex: true, maxDex: 2, strReq: 0, stealthDisadvantage: false, primaryAmmo: 4, secondaryAmmo: 4 },
+        "Colete de placa": { ac: 14, addDex: true, maxDex: 2, strReq: 0, stealthDisadvantage: true, primaryAmmo: 5, secondaryAmmo: 4 },
+        "Colete Tatico": { ac: 14, addDex: true, maxDex: 2, strReq: 0, stealthDisadvantage: false, primaryAmmo: 5, secondaryAmmo: 4 },
+        "Colete Delta": { ac: 15, addDex: true, maxDex: 2, strReq: 0, stealthDisadvantage: true, primaryAmmo: 6, secondaryAmmo: 4 },
+        "Colete reforçado": { ac: 15, addDex: false, maxDex: 0, strReq: 12, stealthDisadvantage: true, primaryAmmo: 7, secondaryAmmo: 4 },
+        "Colete Pesado": { ac: 16, addDex: false, maxDex: 0, strReq: 13, stealthDisadvantage: true, primaryAmmo: 7, secondaryAmmo: 5 },
+        "Juggernaut": { ac: 17, addDex: false, maxDex: 0, strReq: 14, stealthDisadvantage: true, primaryAmmo: 8, secondaryAmmo: 5 },
+        "Colete Omega": { ac: 18, addDex: false, maxDex: 0, strReq: 15, stealthDisadvantage: true, primaryAmmo: 8, secondaryAmmo: 5 }
+    };
     
     let attributeChart; // Variável global para o gráfico
 
@@ -331,6 +347,14 @@ document.addEventListener('DOMContentLoaded', () => {
             option.value = m;
             option.textContent = m;
             mutantSelect.appendChild(option);
+        });
+
+        const coleteSelect = document.getElementById('char-colete');
+        Object.keys(COLETES).forEach(c => {
+            const option = document.createElement('option');
+            option.value = c;
+            option.textContent = c;
+            coleteSelect.appendChild(option);
         });
 
         // Create custom nationality dropdown
@@ -416,13 +440,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSkills() {
         const container = document.getElementById('skills');
         container.innerHTML = '';
-        for (const skill in SKILLS) {
+        const sortedSkills = Object.keys(SKILLS).sort();
+        for (const skill of sortedSkills) {
             const attr = SKILLS[skill];
             const skillHTML = `
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <input type="checkbox" id="prof-skill-${skill.replace(/\s+/g, '')}" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
                         <label class="ml-2">${skill} <span class="text-xs text-gray-500">(${attr})</span></label>
+                        <span id="stealth-disadvantage-indicator" class="text-red-400 text-xs ml-2 font-bold hidden">(Desv.)</span>
                     </div>
                     <span id="bonus-skill-${skill.replace(/\s+/g, '')}" class="font-bold">+0</span>
                 </div>
@@ -561,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('add-equipment-btn').addEventListener('click', addEquipment);
         document.getElementById('add-title-btn').addEventListener('click', () => addGenericItem('titles-list', 'Título'));
         document.getElementById('add-talent-btn').addEventListener('click', () => addGenericItem('talents-list', 'Talento'));
-        document.getElementById('add-trait-btn').addEventListener('click', () => addGenericItem('traits-list', 'Habilidade/Traço'));
+        document.getElementById('add-trait-btn').addEventListener('click', () => addGenericItem('traits-list', 'Habilidade Única', true));
 
         // Save/Load/Clear
         document.getElementById('save-btn').addEventListener('click', saveCharacterToCache);
@@ -665,15 +691,42 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(`bonus-save-${key.toLowerCase()}`).textContent = bonus >= 0 ? `+${bonus}` : bonus;
         }
         
-        // Combat Stats
-        const dexMod = modifiers.DEX;
-        const vestBonus = parseInt(document.getElementById('ac-bonus-vest').value) || 0;
+        // --- Armor and Combat Stats ---
+        const selectedColeteName = document.getElementById('char-colete').value;
+        const selectedColete = COLETES[selectedColeteName];
+        
+        let dexForAC = modifiers.DEX;
+        if (selectedColete.maxDex !== null && dexForAC > selectedColete.maxDex) {
+            dexForAC = selectedColete.maxDex;
+        }
+        
+        const coleteAC = selectedColete.addDex ? selectedColete.ac + dexForAC : selectedColete.ac;
         const shieldBonus = parseInt(document.getElementById('ac-bonus-shield').value) || 0;
         const otherAcBonus = parseInt(document.getElementById('ac-bonus-other').value) || 0;
-        document.getElementById('char-ac').textContent = 10 + dexMod + vestBonus + shieldBonus + otherAcBonus;
+        document.getElementById('char-ac').textContent = coleteAC + shieldBonus + otherAcBonus;
         
+        // Handle STR requirement
+        const strScoreEl = document.getElementById('score-for');
+        if (selectedColete.strReq > (parseInt(strScoreEl.value) || 0)) {
+            strScoreEl.classList.add('str-req-failed');
+        } else {
+            strScoreEl.classList.remove('str-req-failed');
+        }
+        
+        // Handle Stealth Disadvantage
+        const stealthIndicator = document.getElementById('stealth-disadvantage-indicator');
+        if (selectedColete.stealthDisadvantage) {
+            stealthIndicator.classList.remove('hidden');
+        } else {
+            stealthIndicator.classList.add('hidden');
+        }
+
+        // Update Ammo
+        document.getElementById('ammo-primary').textContent = selectedColete.primaryAmmo;
+        document.getElementById('ammo-secondary').textContent = selectedColete.secondaryAmmo;
+
         const otherInitBonus = parseInt(document.getElementById('init-bonus-other').value) || 0;
-        const totalInitiative = dexMod + otherInitBonus;
+        const totalInitiative = modifiers.DEX + otherInitBonus;
         document.getElementById('char-initiative').textContent = totalInitiative >= 0 ? `+${totalInitiative}` : totalInitiative;
         
         // Hit Dice
@@ -684,9 +737,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // P.E.
         const peBase = 4 + Math.floor((level - 1) / 3) + (level >= 12 ? 1 : 0);
         const peStr = modifiers.FOR > 0 ? modifiers.FOR : 0;
+        const peBonus = parseInt(document.getElementById('pe-bonus').value) || 0;
         document.getElementById('pe-base').textContent = peBase;
         document.getElementById('pe-str').textContent = peStr;
-        document.getElementById('pe-max').textContent = peBase + peStr;
+        document.getElementById('pe-max').textContent = peBase + peStr + peBonus;
 
         // Carga
         document.getElementById('carga-max').textContent = 8 + (modifiers.FOR * 2);
@@ -764,17 +818,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateTotals() {
         let currentPE = 0;
-        document.querySelectorAll('.weapon-pe').forEach(input => {
-            currentPE += parseFloat(input.value) || 0;
+        document.querySelectorAll('.weapon-pe-view').forEach(el => {
+            currentPE += parseFloat(el.textContent) || 0;
         });
-        document.querySelectorAll('.equipment-pe').forEach(input => {
-            currentPE += parseFloat(input.value) || 0;
+        document.querySelectorAll('.equipment-pe-view').forEach(el => {
+            currentPE += parseFloat(el.textContent) || 0;
         });
         document.getElementById('pe-current').textContent = currentPE;
 
         let currentCarga = 0;
-        document.querySelectorAll('.equipment-carga').forEach(input => {
-            currentCarga += parseFloat(input.value) || 0;
+        document.querySelectorAll('.dynamic-card[id^="equip-"]').forEach(card => {
+            if (card.classList.contains('view-state')) {
+                const qty = parseFloat(card.dataset.qty) || 1;
+                const carga = parseFloat(card.dataset.carga) || 0;
+                currentCarga += qty * carga;
+            }
         });
         document.getElementById('carga-current').textContent = currentCarga;
     }
@@ -789,25 +847,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const inputs = card.querySelectorAll('.edit-mode [data-value-source]');
             inputs.forEach(input => {
                 const key = input.dataset.valueSource;
-                const viewElement = card.querySelector(`.view-mode [data-value-target="${key}"]`);
-                
                 card.dataset[key] = input.value;
-                if (viewElement) {
-                    viewElement.textContent = input.value;
-                }
             });
             
             const weaponImg = card.querySelector('.edit-mode .weapon-image');
-            if (weaponImg && weaponImg.src) {
-                const viewImg = card.querySelector('.view-mode .weapon-image-view');
+            if (weaponImg && weaponImg.src && weaponImg.src.startsWith('data:image')) {
                 card.dataset.imageSrc = weaponImg.src;
-                if (viewImg) {
-                    viewImg.src = weaponImg.src;
-                    viewImg.classList.remove('hidden');
-                }
             }
 
+            updateCardView(card);
             card.classList.add('view-state');
+            updateTotals();
         } else if (e.target.matches('.edit-card-btn')) {
             const inputs = card.querySelectorAll('.edit-mode [data-value-source]');
             inputs.forEach(input => {
@@ -820,7 +870,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.remove();
                 updateTotals();
             }
+        } else if (e.target.matches('.use-btn')) {
+            const targetKey = e.target.dataset.target; // e.g., "penteAtual"
+            let currentValue = parseInt(card.dataset[targetKey]) || 0;
+            if (currentValue > 0) {
+                currentValue--;
+                card.dataset[targetKey] = currentValue;
+                updateCardView(card);
+            }
+        } else if (e.target.matches('.add-btn')) {
+            const targetKey = e.target.dataset.target; // e.g., "penteAtual"
+            let currentValue = parseInt(card.dataset[targetKey]) || 0;
+            const maxKey = targetKey.replace('Atual', 'Max');
+            const maxValue = parseInt(card.dataset[maxKey]) || 0;
+            if (currentValue < maxValue) {
+                currentValue++;
+                card.dataset[targetKey] = currentValue;
+                updateCardView(card);
+            }
         }
+    }
+
+    function updateCardView(card) {
+        card.querySelectorAll('.view-mode [data-value-target]').forEach(viewEl => {
+            const key = viewEl.dataset.valueTarget;
+            
+            if (key === 'penteAtual' || key === 'usosAtuais') {
+                const maxKey = key.replace('Atual', 'Max');
+                viewEl.textContent = `${card.dataset[key] || 0} / ${card.dataset[maxKey] || 0}`;
+            } else if (key === 'name' && card.querySelector('[data-value-target="qty"]')) {
+                viewEl.textContent = card.dataset.name || 'Nome do Item';
+                card.querySelector('[data-value-target="qty"]').textContent = card.dataset.qty || '1';
+            } else if (key === 'imageSrc') {
+                if (card.dataset.imageSrc && card.dataset.imageSrc.startsWith('data:image')) {
+                    viewEl.src = card.dataset.imageSrc;
+                    viewEl.classList.remove('hidden');
+                    card.querySelector('.edit-mode svg')?.classList.add('hidden');
+                } else {
+                     viewEl.src = '';
+                     viewEl.classList.add('hidden');
+                     card.querySelector('.edit-mode svg')?.classList.remove('hidden');
+                }
+            } else {
+                viewEl.textContent = card.dataset[key] || '';
+            }
+        });
     }
 
     function addWeapon() {
@@ -852,6 +946,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div><strong>Troca:</strong> <span data-value-target="swap"></span></div>
                                 <div><strong>P.E.:</strong> <span data-value-target="pe" class="weapon-pe-view"></span></div>
                             </div>
+                             <div class="flex items-center gap-2 mt-2">
+                                <strong>Pente:</strong>
+                                <span data-value-target="penteAtual">0 / 0</span>
+                                <button class="btn btn-secondary text-xs resource-btn use-btn" data-target="penteAtual">-</button>
+                                <button class="btn btn-secondary text-xs resource-btn add-btn" data-target="penteAtual">+</button>
+                            </div>
                             <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
                         </div>
                     </div>
@@ -873,6 +973,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <input type="text" class="form-input" placeholder="Alcance" data-value-source="range">
                                 <input type="text" class="form-input" placeholder="Troca" data-value-source="swap">
                                 <input type="number" class="form-input weapon-pe" placeholder="P.E." data-value-source="pe">
+                                <input type="number" class="form-input" placeholder="Pente Atual" data-value-source="penteAtual">
+                                <input type="number" class="form-input" placeholder="Pente Máx" data-value-source="penteMax">
                             </div>
                             <textarea class="form-textarea mt-3" rows="2" placeholder="Vantagens, desvantagens, acessórios..." data-value-source="desc"></textarea>
                             <div class="flex gap-2 mt-3">
@@ -896,7 +998,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- View Mode -->
                 <div class="view-mode">
                     <div class="flex justify-between items-start">
-                        <h3 class="text-md font-bold text-white" data-value-target="name">Nome do Item</h3>
+                        <h3 class="text-md font-bold text-white"><span data-value-target="name"></span> (<span data-value-target="qty"></span>)</h3>
                         <div>
                             <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
                             <button class="btn btn-danger text-xs remove-card-btn">X</button>
@@ -912,6 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="edit-mode">
                     <div class="flex items-center gap-3">
                         <input type="text" class="form-input flex-grow" placeholder="Nome do Item" data-value-source="name">
+                        <input type="number" class="form-input w-20" placeholder="Qtd" data-value-source="qty" value="1">
                         <input type="number" step="0.5" class="form-input w-24 equipment-carga" placeholder="Carga" data-value-source="carga">
                         <input type="number" step="0.5" class="form-input w-24 equipment-pe" placeholder="P.E." data-value-source="pe">
                     </div>
@@ -926,10 +1029,27 @@ document.addEventListener('DOMContentLoaded', () => {
         list.insertAdjacentHTML('beforeend', equipHTML);
     }
     
-    function addGenericItem(listId, placeholder) {
+    function addGenericItem(listId, placeholder, hasUses = false) {
         const list = document.getElementById(listId);
         const id = Date.now();
         const itemId = `item-${id}`;
+        
+        const usesHTML = hasUses ? `
+            <div class="flex items-center gap-2 mt-2">
+                <strong>Usos:</strong>
+                <span data-value-target="usosAtuais">0 / 0</span>
+                <button class="btn btn-secondary text-xs resource-btn use-btn" data-target="usosAtuais">-</button>
+                <button class="btn btn-secondary text-xs resource-btn add-btn" data-target="usosAtuais">+</button>
+            </div>
+        ` : '';
+
+        const usesEditHTML = hasUses ? `
+            <div class="grid grid-cols-2 gap-3 mt-2">
+                <input type="number" class="form-input" placeholder="Usos Atuais" data-value-source="usosAtuais">
+                <input type="number" class="form-input" placeholder="Usos Máx" data-value-source="usosMax">
+            </div>
+        ` : '';
+
         const itemHTML = `
              <div id="${itemId}" class="card bg-gray-900 p-3 dynamic-card">
                 <!-- View Mode -->
@@ -941,6 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button class="btn btn-danger text-xs remove-card-btn">X</button>
                         </div>
                     </div>
+                    ${usesHTML}
                     <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
                 </div>
                 <!-- Edit Mode -->
@@ -948,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex items-center gap-3">
                         <input type="text" class="form-input flex-grow" placeholder="Nome do ${placeholder}" data-value-source="name">
                     </div>
+                    ${usesEditHTML}
                     <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição..." data-value-source="desc"></textarea>
                     <div class="flex gap-2 mt-2">
                         <button class="btn btn-success text-xs save-card-btn">Salvar</button>
@@ -1003,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         img.crossOrigin = "Anonymous";
         
         // Proxy to avoid CORS issues if possible
-        img.src = 'https://cors-anywhere.herokuapp.com/' + url;
+        img.src = 'https://corsproxy.io/?' + encodeURIComponent(url);
 
         img.onload = () => {
             document.documentElement.style.setProperty('--bg-url', `url('${url}')`);
@@ -1044,10 +1166,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- DATA PERSISTENCE ---
-    function kebabToCamel(s) {
-        return s.replace(/-./g, x => x[1].toUpperCase());
-    }
-
     function getCharacterDataAsObject() {
         // First, ensure any cards in edit mode are saved to their dataset
         document.querySelectorAll('.dynamic-card:not(.view-state) .save-card-btn').forEach(btn => btn.click());
@@ -1091,6 +1209,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 range: card.dataset.range || '',
                 swap: card.dataset.swap || '',
                 pe: card.dataset.pe || '',
+                penteAtual: card.dataset.penteAtual || '',
+                penteMax: card.dataset.penteMax || '',
                 desc: card.dataset.desc || '',
                 imageSrc: card.dataset.imageSrc || ''
             });
@@ -1098,6 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#equipment-list > div').forEach(card => {
             data.dynamic.equipment.push({
                 name: card.dataset.name || '',
+                qty: card.dataset.qty || '1',
                 carga: card.dataset.carga || '',
                 pe: card.dataset.pe || '',
                 desc: card.dataset.desc || '',
@@ -1107,6 +1228,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = {
                 name: card.dataset.name || '',
                 desc: card.dataset.desc || '',
+                usosAtuais: card.dataset.usosAtuais,
+                usosMax: card.dataset.usosMax,
             };
             if(card.parentElement.id === 'titles-list') data.dynamic.titles.push(item);
             else if(card.parentElement.id === 'talents-list') data.dynamic.talents.push(item);
@@ -1154,7 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.getElementById('char-race').dispatchEvent(new Event('change'));
-        document.getElementById('char-class').dispatchEvent(new Event('change'));
+        updateSpecializationDropdown(); // Update spec dropdown based on loaded class
         
         if (data.selects && data.selects['char-specialization']) {
             document.getElementById('char-specialization').value = data.selects['char-specialization'];
@@ -1165,59 +1288,36 @@ document.addEventListener('DOMContentLoaded', () => {
             addWeapon();
             const card = document.querySelector('#weapons-list > div:last-child');
             Object.assign(card.dataset, w);
-            card.querySelector('[data-value-target="name"]').textContent = w.name;
-            card.querySelector('[data-value-target="damage"]').textContent = w.damage;
-            card.querySelector('[data-value-target="range"]').textContent = w.range;
-            card.querySelector('[data-value-target="swap"]').textContent = w.swap;
-            card.querySelector('[data-value-target="pe"]').textContent = w.pe;
-            card.querySelector('[data-value-target="desc"]').textContent = w.desc;
-            
-            if (w.imageSrc && w.imageSrc.startsWith('data:image')) {
-                const viewImg = card.querySelector('.weapon-image-view');
-                const editImg = card.querySelector('.edit-mode .weapon-image');
-                const placeholder = card.querySelector('.edit-mode svg');
-                
-                viewImg.src = w.imageSrc;
-                editImg.src = w.imageSrc;
-                viewImg.classList.remove('hidden');
-                editImg.classList.remove('hidden');
-                if (placeholder) placeholder.classList.add('hidden');
-            }
+            updateCardView(card);
             card.classList.add('view-state');
         });
         data.dynamic.equipment.forEach(e => {
             addEquipment();
             const card = document.querySelector('#equipment-list > div:last-child');
             Object.assign(card.dataset, e);
-            card.querySelector('[data-value-target="name"]').textContent = e.name;
-            card.querySelector('[data-value-target="carga"]').textContent = e.carga;
-            card.querySelector('[data-value-target="pe"]').textContent = e.pe;
-            card.querySelector('[data-value-target="desc"]').textContent = e.desc;
+            updateCardView(card);
             card.classList.add('view-state');
         });
         data.dynamic.titles.forEach(t => {
             addGenericItem('titles-list', 'Título');
             const card = document.querySelector('#titles-list > div:last-child');
             Object.assign(card.dataset, t);
-            card.querySelector('[data-value-target="name"]').textContent = t.name;
-            card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+            updateCardView(card);
             card.classList.add('view-state');
         });
         data.dynamic.talents.forEach(t => {
             addGenericItem('talents-list', 'Talento');
             const card = document.querySelector('#talents-list > div:last-child');
             Object.assign(card.dataset, t);
-            card.querySelector('[data-value-target="name"]').textContent = t.name;
-            card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+            updateCardView(card);
             card.classList.add('view-state');
         });
         if (data.dynamic.traits) {
             data.dynamic.traits.forEach(t => {
-                addGenericItem('traits-list', 'Habilidade/Traço');
+                addGenericItem('traits-list', 'Habilidade Única', !!t.usosMax);
                 const card = document.querySelector('#traits-list > div:last-child');
                 Object.assign(card.dataset, t);
-                card.querySelector('[data-value-target="name"]').textContent = t.name;
-                card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+                updateCardView(card);
                 card.classList.add('view-state');
             });
         }

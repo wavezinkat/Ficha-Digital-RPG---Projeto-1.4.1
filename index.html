@@ -164,22 +164,24 @@
                         </div>
                          <div class="card">
                             <h2 class="text-xl font-semibold mb-4 text-white card-title">Defesas</h2>
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4">
                                 <div>
-                                    <label class="text-sm font-medium">Bônus Colete</label>
-                                    <input type="number" id="ac-bonus-vest" class="form-input text-center" value="0">
+                                    <label class="text-sm font-medium">Colete</label>
+                                    <select id="char-colete" class="form-select"></select>
                                 </div>
-                                <div>
-                                    <label class="text-sm font-medium">Bônus Escudo</label>
-                                    <input type="number" id="ac-bonus-shield" class="form-input text-center" value="0">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-medium">Outros Bônus CA</label>
-                                    <input type="number" id="ac-bonus-other" class="form-input text-center" value="0">
-                                </div>
-                                 <div>
-                                    <label class="text-sm font-medium">Outros Bônus Iniciativa</label>
-                                    <input type="number" id="init-bonus-other" class="form-input text-center" value="0">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-sm font-medium">Bônus Escudo</label>
+                                        <input type="number" id="ac-bonus-shield" class="form-input text-center" value="0">
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Outros Bônus CA</label>
+                                        <input type="number" id="ac-bonus-other" class="form-input text-center" value="0">
+                                    </div>
+                                     <div>
+                                        <label class="text-sm font-medium">Outros Bônus Iniciativa</label>
+                                        <input type="number" id="init-bonus-other" class="form-input text-center" value="0">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -193,7 +195,14 @@
                                         <span class="text-lg">/</span>
                                         <div id="pe-max" class="form-input text-center bg-gray-900">4</div>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-1">Base: <span id="pe-base">4</span> + Força (Armas): <span id="pe-str">0</span></p>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <p class="text-xs text-gray-400">Base: <span id="pe-base">4</span></p>
+                                        <p class="text-xs text-gray-400">Força: <span id="pe-str">0</span></p>
+                                        <div class="flex items-center">
+                                            <label class="text-xs text-gray-400 mr-1">Bônus:</label>
+                                            <input type="number" id="pe-bonus" class="form-input text-center text-xs p-1 w-16" value="0">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium">Carga</label>
@@ -201,6 +210,16 @@
                                         <div id="carga-current" class="form-input text-center bg-gray-900">0</div>
                                         <span class="text-lg">/</span>
                                         <div id="carga-max" class="form-input text-center bg-gray-900">8</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-sm font-medium">Pentes Primária</label>
+                                        <div id="ammo-primary" class="form-input text-center bg-gray-900">2</div>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium">Pentes Secundária</label>
+                                        <div id="ammo-secondary" class="form-input text-center bg-gray-900">2</div>
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +256,7 @@
             <div id="combate" class="tab-content">
                 <div class="card">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-white card-title">Armamento</h2>
+                        <h2 class="text-xl font-semibold text-white card-title">Armamento / Habilidades</h2>
                         <button id="add-weapon-btn" class="btn btn-primary">Adicionar Arma</button>
                     </div>
                     <div id="weapons-list" class="space-y-4">
