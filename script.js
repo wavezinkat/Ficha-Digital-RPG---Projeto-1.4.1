@@ -90,26 +90,209 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const SPECIALIZATIONS = {
-        "Armeiro": [
-            { name: "A ARMA CERTA PARA O TRABALHO", desc: "Nível 1: Proficiência em todas as armas de fogo e coletes. Usa metade do Mod de Proficiência no dano da arma." },
-            { name: "ACESSORIOS!!", desc: "Nível 3: Cancela o uso de 1/2 PE de acessórios de armas (aumenta no nível 14)." },
-            { name: "SLOT TATICO", desc: "Nível 5: Nega o uso de PE em 2 granadas (aumenta para 3 e 4 nos níveis 8 e 13)." },
-            { name: "ARMA FAVORITA", desc: "Nível 7: Gaste 30min para tornar uma arma sua favorita, ganhando benefícios." },
-            { name: "REDUZIR P.E", desc: "Nível 10: Pode melhorar uma arma para diminuir o PE em 1 (aumenta para 2 no nível 17)." },
-            { name: "ARSENAL PERFEITO", desc: "Nível 13: Com 3+ acessórios na arma, a proficiência é dobrada nos disparos." },
-            { name: "ARMADO", desc: "Nível 15: Pode remover e colocar acessórios fora do QG com um kit de reparos." },
-        ],
-        "Engenheiro": [
-            { name: "MELHORIA", desc: "Nível 1: Equipamentos criados/modificados por você possuem maior melhoria (1 por equipamento, aumenta para 2 no nível 11)." },
-            { name: "SLOT TATICO", desc: "Nível 3: Nega o uso de PE em 2 granadas (aumenta para 3 e 4 nos níveis 8 e 13)." },
-            { name: "SLOT EXTRA", desc: "Nível 5: Nega uso de PE em equipamentos. Ganha 1+ PE a cada 5 níveis." },
-            { name: "CRIAR", desc: "Nível 7: Pode fazer equipamentos que já conhece gastando dinheiro e tempo." },
-            { name: "REPARAR", desc: "Nível 10: Pode reparar autômatos e equipamentos. Autômatos curam 1d10 + INT." },
-            { name: "REDUZIR P.E", desc: "Nível 13: Pode melhorar um equipamento para diminuir o PE." },
-            { name: "REUTILIZAR", desc: "Nível 15: Gaste 1 kit de reparo para ter um uso extra em seu equipamento." },
-        ]
+        "Assalto": {
+            "Commando": [
+                { name: "ESTILO DE COMBATE", desc: "Nível 1: Escolha um: Precisão (+2), Defesa (+1 CA), Armas Pesadas (rerola 1s e 2s no dano), Ponto Fraco (+2 dano), Mobilidade (+3m deslocamento). Ganha outro no nível 9." },
+                { name: "NÃO VOU COM A SUA CARA...", desc: "Nível 3: No início do combate, marque um 'Alvo'. Escolha: adicionar proficiência no dano contra ele OU ter vantagem em testes de DES e CON causados por ele." },
+                { name: "SURTO DE AÇÃO", desc: "Nível 3: Uma vez por descanso, ganha uma ação extra." },
+                { name: "TIRO RÁPIDO", desc: "Nível 5: Pode fazer um disparo com uma ação bônus (com desvantagem)." },
+                { name: "TÁTICAS DEFENSIVAS", desc: "Nível 7: Escolha um: Escapar da Horda, Defesa Contra Múltiplos Ataques, ou Vontade de Aço." },
+                { name: "FORMAÇÃO!", desc: "Nível 10: Fora de combate, pode definir a ordem de iniciativa do grupo. Apenas você rola iniciativa." },
+                { name: "MANDA MAIS!", desc: "Nível 12: Mais difícil de ser suprimido (+1 inimigo necessário)." },
+                { name: "PONTARIA AGUÇADA", desc: "Nível 15: Remove a desvantagem do Tiro Rápido. Ganha vantagem no primeiro ataque à distância do turno." }
+            ],
+            "Hazmat": [
+                { name: "MESTRADO EM QUÍMICA", desc: "Nível 1: Equipamentos de área de efeito (AOE) que você produz duram +2 turnos." },
+                { name: "SURTO DE AÇÃO", desc: "Nível 3: Uma vez por descanso, ganha uma ação extra." },
+                { name: "RESPIRAR FUNDO", desc: "Nível 3: Uma vez por descanso, recupera 1d12 + Nível + CON de vida como ação bônus." },
+                { name: "NÃO FARÁ EFEITO!", desc: "Nível 5: Ganha resistência a 2 tipos de dano/efeitos (Envenenado, Queimado, etc.)." },
+                { name: "CONTROLADOR DE ÁREA", desc: "Nível 7: Ganha bônus de deslocamento e precisão em áreas de efeito que você tem resistência." },
+                { name: "DESCONTAMINADO", desc: "Nível 10: Adiciona seu bônus de proficiência ao dano contra alvos em sua área de efeito." },
+                { name: "ESTE É O MEU MUNDO!", desc: "Nível 12: Efeitos que afetam a visão em gases são reduzidos. Ganha 3m de visão verdadeira e +2 de CA em áreas de efeito com resistência." },
+                { name: "NÃO ENTRE!", desc: "Nível 15: Em áreas contaminadas por você, ganha vantagem no acerto e uma ação de disparo bônus." }
+            ]
+        },
+        "Corpo a corpo": {
+            "Espadachim": [
+                { name: "ARMA", desc: "Nível 1: Proficiência em armas brancas de médio porte." },
+                { name: "SUPERIORIDADE EM COMBATE", desc: "Nível 1: Aprende 3 manobras e ganha 4 dados de superioridade (d8). Aprende mais manobras e ganha mais dados em níveis superiores." },
+                { name: "ATAQUE EXTRA", desc: "Nível 3: Pode atacar uma vez a mais com sua arma corpo a corpo." },
+                { name: "MESTRE DAS LÂMINAS", desc: "Nível 5: No primeiro turno, pode sacar a arma e atacar um inimigo que ainda não agiu com vantagem, adicionando sua iniciativa ao dano." },
+                { name: "ATLETISMO EXTRAORDINÁRIO", desc: "Nível 7: Adiciona metade da proficiência a testes de FOR, DES ou CON não proficientes. Salto em distância aprimorado." },
+                { name: "SOBREVIVENTE", desc: "Nível 10: Recupera 5 + mod CON de vida no início do seu turno se estiver com menos da metade da vida." },
+                { name: "ATAQUE EXTRA (2)", desc: "Nível 12: Pode atacar duas vezes a mais (total de 3 ataques por ação)." },
+                { name: "SUPERIORIDADE APRIMORADA", desc: "Nível 14: Seus dados de superioridade se tornam d10s (d12s no nível 18)." },
+                { name: "IMPLACÁVEL", desc: "Nível 16: Se rolar iniciativa sem dados de superioridade, recupera um." }
+            ],
+            "Selvagem": [
+                { name: "ARMA", desc: "Nível 1: Proficiência em armas pesadas de duas mãos." },
+                { name: "FÚRIA", desc: "Nível 1: Entra em fúria como ação bônus. Ganha Vantagem em testes de FOR, bônus no dano, resistência a dano físico e +1 disparo com armas de fogo." },
+                { name: "ATAQUE EXTRA", desc: "Nível 3: Pode atacar uma vez a mais com sua arma corpo a corpo." },
+                { name: "FRENESI", desc: "Nível 5: Enquanto em fúria, pode fazer um ataque corpo-a-corpo como ação bônus (causa exaustão)." },
+                { name: "FÚRIA INCONSCIENTE", desc: "Nível 7: Não pode ser atordoado ou amedrontado enquanto em fúria." },
+                { name: "PRESENÇA INTIMIDANTE", desc: "Nível 10: Usa sua ação para amedrontar uma criatura." },
+                { name: "ATAQUE EXTRA (2)", desc: "Nível 12: Pode atacar duas vezes a mais (total de 3 ataques por ação)." },
+                { name: "RETALIAÇÃO", desc: "Nível 14: Usa sua reação para atacar uma criatura que te causou dano." },
+                { name: "CAMPEÃO", desc: "Nível 16: Aumenta FOR e CON em 4 (máximo 24)." }
+            ],
+            "Brawler": [
+                { name: "ARMA", desc: "Nível 1: Proficiência em manoplas." },
+                { name: "PONTOS DE ESTAMINA", desc: "Nível 1: Ganha pontos de estamina iguais ao seu nível para usar em técnicas." },
+                { name: "TÉCNICAS DO FERRO", desc: "Nível 1: Adiciona mod CON ou DES à CA. Pode usar Punho Pesado, Defesa Blindada ou Posição Montanha." },
+                { name: "ATAQUE EXTRA", desc: "Nível 3: Pode atacar uma vez a mais com sua arma corpo a corpo." },
+                { name: "DESARME!", desc: "Nível 5: Gasta 2 estamina para tentar desarmar um oponente." },
+                { name: "DEFLETIR PROJÉTEIS", desc: "Nível 7: Usa reação para reduzir o dano de ataques à distância." },
+                { name: "VIGOR DE DIAMANTE", desc: "Nível 10: Ganha proficiência em todos os testes de resistência. Pode gastar estamina para rerrolar um teste falho." },
+                { name: "ATAQUE EXTRA (2)", desc: "Nível 12: Pode atacar duas vezes a mais (total de 3 ataques por ação)." },
+                { name: "EVASÃO", desc: "Nível 14: Em testes de DES para meio dano, não toma dano se passar e metade se falhar. Pode revidar explosivos." },
+                { name: "CONTRA-ATAQUE DEVASTADOR", desc: "Nível 16: Gasta 3 estamina como reação para fazer um ataque crítico com Punho Pesado." }
+            ]
+        },
+        "Suporte": {
+            "Medico": [
+                { name: "PROFICIÊNCIA", desc: "Nível 1: Ganha proficiência em Medicina." },
+                { name: "A FORMA CERTA", desc: "Nível 1: Pode usar mod INT ou SAB x2 em rolagens de cura." },
+                { name: "CURA IMPROVISADA", desc: "Nível 3: Cura 6 x (nível de médico) em um aliado." },
+                { name: "EFICIENTE", desc: "Nível 5: Vantagem em todas as rolagens de cura." },
+                { name: "COBAIA", desc: "Nível 7: Pode produzir 2 tipos de componentes químicos (Overdose, Sonífero, Analgésico, etc.)." },
+                { name: "FOLEGO EXTRA", desc: "Nível 7: Uma vez por descanso, recupera 1d12 + Nível de Operador de vida." },
+                { name: "NÃO ME ATRAPALHA!", desc: "Nível 12: Pode atacar com armas leves como ação bônus enquanto cura (com desvantagem)." },
+                { name: "HORA DE DAR UMA RESPIRADA...", desc: "Nível 14: Uma vez por descanso longo, pode gastar 1 hora para curar completamente aliados e remover a maioria dos debuffs." }
+            ],
+            "Pilar": [
+                { name: "POSTURA DEFENSIVA", desc: "Nível 1: Com colete e escudo, ganha resistência a dano físico, +3 CA como reação e vantagem em testes de FOR e DES. Deslocamento reduzido." },
+                { name: "FOLEGO EXTRA", desc: "Nível 3: Uma vez por descanso, recupera 1d12 + Nível de Operador de vida." },
+                { name: "COBERTURA DE FERRO", desc: "Nível 5: Inimigos têm desvantagem contra aliados a 1m de você." },
+                { name: "APOIO", desc: "Nível 7: Pode usar armas maiores com seu escudo e não tem mais desvantagem com pistolas." },
+                { name: "CALEJADO", desc: "Nível 10: Ganha +2 de CON (máximo 24)." },
+                { name: "PROTEGER ALIADO", desc: "Nível 12: Usa ação bônus para dar seu bônus de escudo a um aliado adjacente." },
+                { name: "SURTO DEFENSIVO", desc: "Nível 14: Duas vezes por descanso longo, pode usar reação para ganhar vantagem em um teste de resistência." },
+                { name: "SOBREVIVENTE", desc: "Nível 16: Recupera 5 + mod CON de vida no início do seu turno se estiver com menos da metade da vida." }
+            ],
+            "Drudge": [
+                { name: "SENTA O DEDO!", desc: "Nível 1: Pode gastar o dobro de disparos para atacar em cone de 15m ou adicionar +1 dado de acerto e meio dano extra." },
+                { name: "BURRO DE CARGA", desc: "Nível 3: Carga base aumentada de acordo com o colete." },
+                { name: "FOLEGO EXTRA", desc: "Nível 3: Uma vez por descanso, recupera 1d12 + Nível de Operador de vida." },
+                { name: "QUER UMA AJUDINHA?", desc: "Nível 5: Pode usar equipamentos e itens em aliados como ação bônus." },
+                { name: "ENTÃO ASSIM FUNCIONA!", desc: "Nível 7: Pode aprender uma habilidade de nível 8 ou menor de uma subclasse aliada." },
+                { name: "EFETIVAMENTE PESADO", desc: "Nível 10: Ganha 3 P.E. extras apenas para equipamentos." },
+                { name: "PEGAR E CARREGAR", desc: "Nível 12: Pode usar itens lançáveis como ação bônus e carregar aliados sem penalidade." },
+                { name: "NÃO TO TE ESCUTANDO!", desc: "Nível 15: Pode suprimir um inimigo sozinho com LMG ou AR gastando o dobro de munição." }
+            ]
+        },
+        "Cobra": {
+            "Espião": [
+                { name: "MOBILIDADE", desc: "Passiva: Esconder, Disparar e Desengajar como ação bônus. Metade do dano de queda." },
+                { name: "ATAQUE FURTIVO", desc: "Nível 1: Causa dano extra (escala com o nível) em ataques com vantagem." },
+                { name: "AÇÃO ARDILOSA", desc: "Nível 3: Ganha uma ação bônus extra por turno (mais uma no nível 8)." },
+                { name: "MÃO VELOZ", desc: "Nível 5: Saca e ataca com uma arma leve escondida como ação bônus com vantagem (1x por descanso, aumenta usos depois)." },
+                { name: "CQC", desc: "Nível 7: Agarrão como ação bônus. Munições não letais sem desvantagem." },
+                { name: "ESPECIALIZAÇÃO", desc: "Nível 9: Dobra a proficiência em duas perícias/ferramentas escolhidas." },
+                { name: "MOVIMENTO SILENCIOSO", desc: "Nível 10: Pode se mover sem ser detectado por 3 rodadas em cobertura. Primeiro ataque causa +1d6 de dano." },
+                { name: "ESPECIALIZAÇÃO EM INFILTRAÇÃO", desc: "Nível 12: Pode criar identidades falsas." },
+                { name: "REFLEXOS DE ESPIÃO", desc: "Nível 15: Ganha um segundo turno na primeira rodada de combate (iniciativa - 10)." }
+            ],
+            "Assassino": [
+                { name: "MOBILIDADE", desc: "Passiva: Esconder, Disparar e Desengajar como ação bônus. Metade do dano de queda." },
+                { name: "ATAQUE FURTIVO", desc: "Nível 1: Causa dano extra (escala com o nível) em ataques com vantagem." },
+                { name: "AÇÃO ARDILOSA", desc: "Nível 3: Ganha uma ação bônus extra por turno (mais uma no nível 10)." },
+                { name: "FURTIVIDADE SUPREMA", desc: "Nível 5: Vantagem em Furtividade se mover metade do deslocamento." },
+                { name: "CRÍTICO SUPERIOR", desc: "Nível 9: Margem de crítico aumentada para 18-20." },
+                { name: "ELUSIVO", desc: "Nível 10: Ataques contra você não podem ter vantagem." },
+                { name: "ASSASSINAR", desc: "Nível 10: Vantagem contra criaturas que não agiram. Acertos em criaturas surpresas são críticos." },
+                { name: "IMPOSTOR", desc: "Nível 12: Pode imitar a fala, escrita e comportamento de outros." },
+                { name: "GOLPE LETAL", desc: "Nível 15: Alvos surpresos devem fazer um teste de CON ou o dano do seu ataque é dobrado." }
+            ],
+            "Lâmina": [
+                { name: "MOBILIDADE", desc: "Passiva: Esconder, Disparar e Desengajar como ação bônus. Metade do dano de queda." },
+                { name: "ATAQUE FURTIVO", desc: "Nível 1: Causa dano extra (escala com o nível) em ataques com vantagem." },
+                { name: "AÇÃO ARDILOSA", desc: "Nível 3: Ganha uma ação bônus extra por turno (mais uma no nível 10)." },
+                { name: "MÃO VELOZ", desc: "Nível 5: Saca e ataca com uma arma leve escondida como ação bônus com vantagem (usos aumentam com o nível)." },
+                { name: "ATAQUE EXTRA", desc: "Nível 7: Ganha ataques extras (2 no 7, 3 no 11, 4 no 20)." },
+                { name: "MOVIMENTO RÁPIDO", desc: "Nível 10: Deslocamento aumenta em 3 metros sem armadura pesada." },
+                { name: "INSTINTO", desc: "Nível 12: Vantagem na iniciativa e pode agir se estiver surpreso." },
+                { name: "CRÍTICO BRUTAL", desc: "Nível 14: Rola dados de dano adicionais em acertos críticos." },
+                { name: "GOLPE DE SORTE", desc: "Nível 16: Pode transformar uma falha em um acerto ou um teste falho em um 20 natural (1x por descanso)." }
+            ]
+        },
+        "Franco-atirador": {
+            "Cowboy": [
+                { name: "PASSIVA", desc: "Armas podem varar inimigos com 'Overkill'." },
+                { name: "TÉCNICAS DE TIRO", desc: "Nível 1: Escolha uma técnica (Tiro Atordoante, Certeiro, etc.). Ganha mais nos níveis 6, 9, 12, 15." },
+                { name: "ESTILO DE TIRO", desc: "Nível 3: Escolha um estilo (Vigia, Combatente, Fantasma, Caçador de Recompensa)." },
+                { name: "VANTAGEM", desc: "Nível 5: Ignora terreno difícil, vantagem na iniciativa e no primeiro turno contra quem não agiu." },
+                { name: "PÉS RÁPIDOS", desc: "Nível 7: Disparada e Desengajar como ação bônus." },
+                { name: "RAJADA DO CAÇADOR", desc: "Nível 10: Se errar um ataque, pode fazer outro (1x por turno)." },
+                { name: "ESQUIVA DO PERSEGUIDOR", desc: "Nível 12: Usa reação para impor desvantagem em um ataque contra você (1x por combate)." },
+                { name: "JOGADA DE MESTRE", desc: "Nível 14: Usa reação para atirar em objetos lançados." },
+                { name: "CRÍTICO HEMORRÁGICO", desc: "Nível 16: Críticos causam dano de sangramento no turno seguinte do alvo." }
+            ],
+            "Sniper": [
+                { name: "PASSIVA", desc: "Armas podem varar inimigos com 'Overkill'." },
+                { name: "FORA DE ALCANCE", desc: "Nível 1: Após um teste de Furtividade bem-sucedido, pode gastar movimento para um disparo extra." },
+                { name: "ESTILO DE TIRO", desc: "Nível 3: Escolha um estilo (Vigia, Combatente, Fantasma, Caçador de Recompensa)." },
+                { name: "PRECISÃO", desc: "Nível 5: Se não se mover, adiciona mod DES ou SAB ao teste de acerto." },
+                { name: "BATER EM RETIRADA", desc: "Nível 7: Se for localizado, ganha deslocamento bônus por 3 turnos." },
+                { name: "CRÍTICO APRIMORADO", desc: "Nível 10: Margem de crítico aumentada para 19-20." },
+                { name: "RAJADA DO RASTREADOR", desc: "Nível 12: Se errar um ataque, pode fazer outro (1x por turno)." },
+                { name: "DESAPARECER", desc: "Nível 14: Pode usar Esconder como ação bônus. Não pode ser rastreado por meios não-tecnológicos." },
+                { name: "UM TIRO, UMA MORTE", desc: "Nível 16: Alvos com 20 PV ou menos devem passar em um teste de CON ou caem a 0 PV. (30 PV em um crítico)." }
+            ],
+            "Caçador": [
+                { name: "PASSIVA", desc: "Armas podem varar inimigos com 'Overkill'." },
+                { name: "COMPANHEIRO ANIMAL", desc: "Nível 1: Ganha um companheiro animal leal." },
+                { name: "ESTILO DE TIRO", desc: "Nível 3: Escolha um estilo (Vigia, Combatente, Fantasma, Caçador de Recompensa)." },
+                { name: "EXPLORADOR NATURAL", desc: "Nível 5: Ignora terreno difícil, vantagem na iniciativa e no primeiro turno contra quem não agiu." },
+                { name: "CAÇADOR EXPERIENTE", desc: "Nível 7: Ganha proficiência com +2 tipos de armas." },
+                { name: "ATAQUE COORDENADO", desc: "Nível 10: Quando você ataca, seu companheiro pode usar a reação para atacar." },
+                { name: "RAJADA DO CAÇADOR", desc: "Nível 12: Se errar um ataque, pode fazer outro (1x por turno)." },
+                { name: "ESQUIVA DO PERSEGUIDOR", desc: "Nível 14: Usa reação para impor desvantagem em um ataque contra você (1x por combate)." },
+                { name: "MATADOR DE INIMIGOS", desc: "Nível 16: Uma vez por turno, pode adicionar seu mod SAB ao ataque ou dano." }
+            ]
+        },
+        "Hacker": {
+            "Criador": [
+                { name: "CONSTRUIR AUTÔMATO", desc: "Nível 1: Pode fabricar autômatos que obedecem seus comandos." },
+                { name: "METACODIGO", desc: "Nível 3: Aprende 2 metacódigos para aprimorar suas criações (Equipar, Resistir, etc.). Ganha mais com o nível." },
+                { name: "REPARAR AUTOMATO", desc: "Nível 5: Pode reparar autômatos em combate usando ferramentas." },
+                { name: "ENERGIZADO", desc: "Nível 7: Adiciona bônus de proficiência à energia de equipamentos (dobrado nos que você criou)." },
+                { name: "ENGENHARIA REVERSA", desc: "Nível 10: Pode aprender a reproduzir máquinas desativadas." },
+                { name: "REFORÇAR AUTOMATO", desc: "Nível 12: Seus autômatos ganham resistência a um tipo de dano físico e vantagem em testes de resistência." },
+                { name: "DISPOSITIVO DE LOCALIZAÇÃO", desc: "Nível 15: Pode chamar seu autômato para a localização de um alvo." }
+            ],
+            "Invasor": [
+                { name: "USOS DO CÓDIGO", desc: "Nível 1: Ganha usos de invasão que aumentam com o nível." },
+                { name: "INVASÃO DE PRIVACIDADE", desc: "Nível 1: Pode invadir, atrapalhar ou controlar entidades tecnológicas com um teste de INT." },
+                { name: "METACODIGO", desc: "Nível 3: Aprende 2 metacódigos para aprimorar suas invasões (Alvo Duplo, Código Complexo, etc.). Ganha mais com o nível." },
+                { name: "CURTO CIRCUITO", desc: "Nível 5: Pode instalar um vírus que causa dano contínuo (1d4) em uma máquina." },
+                { name: "TOMAR CONTROLE", desc: "Nível 7: Pode invadir e controlar um inimigo por 1d4 turnos (requer concentração)." },
+                { name: "PONTO FRACO", desc: "Nível 10: Após um crítico em 'invasão' ou 'atrapalhar', adiciona prof + mod INT ao dano do próximo ataque." },
+                { name: "REMOVER", desc: "Nível 13: Pode remover temporariamente uma habilidade/equipamento de uma entidade." },
+                { name: "CONTROLE TOTAL", desc: "Nível 15: Após invadir, pode fortalecer ou atrapalhar o alvo, adicionando ou subtraindo (INT + Prof) do dano dele." }
+            ]
+        },
+        "Especialista": {
+            "Armeiro": [
+                { name: "A ARMA CERTA PARA O TRABALHO", desc: "Nível 1: Proficiência em todas as armas de fogo e coletes. Usa metade do Mod de Proficiência no dano da arma." },
+                { name: "ACESSORIOS!!", desc: "Nível 3: Cancela o uso de 1/2 PE de acessórios de armas (aumenta no nível 14)." },
+                { name: "SLOT TATICO", desc: "Nível 5: Nega o uso de PE em 2 granadas (aumenta para 3 e 4 nos níveis 8 e 13)." },
+                { name: "ARMA FAVORITA", desc: "Nível 7: Gaste 30min para tornar uma arma sua favorita, ganhando benefícios." },
+                { name: "REDUZIR P.E", desc: "Nível 10: Pode melhorar uma arma para diminuir o PE em 1 (aumenta para 2 no nível 17)." },
+                { name: "ARSENAL PERFEITO", desc: "Nível 13: Com 3+ acessórios na arma, a proficiência é dobrada nos disparos." },
+                { name: "ARMADO", desc: "Nível 15: Pode remover e colocar acessórios fora do QG com um kit de reparos." },
+            ],
+            "Engenheiro": [
+                { name: "MELHORIA", desc: "Nível 1: Equipamentos criados/modificados por você possuem maior melhoria (1 por equipamento, aumenta para 2 no nível 11)." },
+                { name: "SLOT TATICO", desc: "Nível 3: Nega o uso de PE em 2 granadas (aumenta para 3 e 4 nos níveis 8 e 13)." },
+                { name: "SLOT EXTRA", desc: "Nível 5: Nega uso de PE em equipamentos. Ganha 1+ PE a cada 5 níveis." },
+                { name: "CRIAR", desc: "Nível 7: Pode fazer equipamentos que já conhece gastando dinheiro e tempo." },
+                { name: "REPARAR", desc: "Nível 10: Pode reparar autômatos e equipamentos. Autômatos curam 1d10 + INT." },
+                { name: "REDUZIR P.E", desc: "Nível 13: Pode melhorar um equipamento para diminuir o PE." },
+                { name: "REUTILIZAR", desc: "Nível 15: Gaste 1 kit de reparo para ter um uso extra em seu equipamento." },
+            ]
+        }
     };
-
+    
     // --- INITIALIZATION ---
     function init() {
         populateDropdowns();
@@ -117,6 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSavingThrows();
         renderSkills();
         setupEventListeners();
+        updateSpecializationDropdown(); // Call this initially
         updateSheet();
     }
 
@@ -127,14 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
             option.value = c;
             option.textContent = c;
             classSelect.appendChild(option);
-        });
-
-        const specSelect = document.getElementById('char-specialization');
-        Object.keys(SPECIALIZATIONS).forEach(s => {
-            const option = document.createElement('option');
-            option.value = s;
-            option.textContent = s;
-            specSelect.appendChild(option);
         });
 
         const raceSelect = document.getElementById('char-race');
@@ -177,6 +353,29 @@ document.addEventListener('DOMContentLoaded', () => {
             optionsContainer.appendChild(optionDiv);
         }
     }
+
+    function updateSpecializationDropdown() {
+        const classSelect = document.getElementById('char-class');
+        const specWrapper = document.getElementById('specialization-wrapper');
+        const specSelect = document.getElementById('char-specialization');
+        const selectedClass = classSelect.value;
+
+        const classSpecs = SPECIALIZATIONS[selectedClass];
+
+        if (classSpecs) {
+            specWrapper.classList.remove('hidden');
+            specSelect.innerHTML = ''; // Clear existing options
+            Object.keys(classSpecs).forEach(specName => {
+                const option = document.createElement('option');
+                option.value = specName;
+                option.textContent = specName;
+                specSelect.appendChild(option);
+            });
+        } else {
+            specWrapper.classList.add('hidden');
+        }
+    }
+
 
     function renderAttributes() {
         const container = document.getElementById('attributes');
@@ -257,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSheet();
         });
         document.getElementById('char-class').addEventListener('change', (e) => {
-            document.getElementById('specialization-wrapper').classList.toggle('hidden', e.target.value !== 'Especialista');
+            updateSpecializationDropdown();
             updateSheet();
         });
 
@@ -300,7 +499,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Event delegation for weapon image uploads
+        // Event delegation for dynamic cards
+        document.body.addEventListener('click', handleCardActions);
         document.getElementById('weapons-list').addEventListener('change', (e) => {
             if (e.target && e.target.matches('.weapon-image-upload')) {
                 handleWeaponImageUpload(e);
@@ -445,9 +645,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const selectedClassName = document.getElementById('char-class').value;
-        if (selectedClassName === 'Especialista') {
+        const classSpecs = SPECIALIZATIONS[selectedClassName];
+        if (classSpecs) {
             const selectedSpecName = document.getElementById('char-specialization').value;
-            const selectedSpecData = SPECIALIZATIONS[selectedSpecName];
+            const selectedSpecData = classSpecs[selectedSpecName];
             if (selectedSpecData) {
                 featuresList.innerHTML += '<hr class="border-gray-600 my-3">';
                 selectedSpecData.forEach(feature => {
@@ -466,7 +667,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateTotals() {
         let currentPE = 0;
-        document.querySelectorAll('.weapon-pe, .equipment-pe').forEach(input => {
+        document.querySelectorAll('.weapon-pe').forEach(input => {
+            currentPE += parseFloat(input.value) || 0;
+        });
+        document.querySelectorAll('.equipment-pe').forEach(input => {
             currentPE += parseFloat(input.value) || 0;
         });
         document.getElementById('pe-current').textContent = currentPE;
@@ -478,30 +682,108 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('carga-current').textContent = currentCarga;
     }
 
+    // --- DYNAMIC ITEM MANAGEMENT ---
+
+    function handleCardActions(e) {
+        const card = e.target.closest('.dynamic-card');
+        if (!card) return;
+
+        if (e.target.matches('.save-card-btn')) {
+            const inputs = card.querySelectorAll('.edit-mode [data-value-source]');
+            inputs.forEach(input => {
+                const key = input.dataset.valueSource;
+                const viewElement = card.querySelector(`.view-mode [data-value-target="${key}"]`);
+                
+                card.dataset[key] = input.value;
+                if (viewElement) {
+                    viewElement.textContent = input.value;
+                }
+            });
+            
+            const weaponImg = card.querySelector('.edit-mode .weapon-image');
+            if (weaponImg && weaponImg.src) {
+                const viewImg = card.querySelector('.view-mode .weapon-image-view');
+                card.dataset.imageSrc = weaponImg.src;
+                if (viewImg) {
+                    viewImg.src = weaponImg.src;
+                    viewImg.classList.remove('hidden');
+                }
+            }
+
+            card.classList.add('view-state');
+        } else if (e.target.matches('.edit-card-btn')) {
+            const inputs = card.querySelectorAll('.edit-mode [data-value-source]');
+            inputs.forEach(input => {
+                const key = input.dataset.valueSource;
+                input.value = card.dataset[key] || '';
+            });
+            card.classList.remove('view-state');
+        } else if (e.target.matches('.remove-card-btn')) {
+            if (confirm('Tem certeza que deseja excluir este item?')) {
+                card.remove();
+                updateTotals();
+            }
+        }
+    }
+
     function addWeapon() {
         const list = document.getElementById('weapons-list');
-        const weaponId = `weapon-${Date.now()}`;
-        const inputId = `weapon-image-upload-${Date.now()}`;
-        const imgId = `weapon-image-${Date.now()}`;
+        const id = Date.now();
+        const weaponId = `weapon-${id}`;
+        const inputId = `weapon-image-upload-${id}`;
+        const imgId = `weapon-image-${id}`;
 
         const weaponHTML = `
-            <div id="${weaponId}" class="card bg-gray-900 p-4 flex flex-col sm:flex-row gap-4">
-                <label for="${inputId}" class="weapon-image-container">
-                    <img id="${imgId}" src="" class="weapon-image hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <input type="file" id="${inputId}" accept="image/*" class="hidden weapon-image-upload">
-                </label>
-                <div class="flex-grow">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <input type="text" class="form-input" placeholder="Nome da Arma">
-                        <input type="text" class="form-input" placeholder="Dano">
-                        <input type="text" class="form-input" placeholder="Alcance">
-                        <input type="number" class="form-input weapon-pe" placeholder="P.E.">
+            <div id="${weaponId}" class="card bg-gray-900 p-4 flex flex-col sm:flex-row gap-4 dynamic-card">
+                <!-- View Mode -->
+                <div class="view-mode">
+                    <div class="flex gap-4">
+                        <div class="weapon-image-container">
+                            <img data-value-target="imageSrc" src="" class="weapon-image-view weapon-image hidden">
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg font-bold text-white" data-value-target="name">Nome da Arma</h3>
+                                <div>
+                                    <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
+                                    <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">X</button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 mt-2 text-sm">
+                                <div><strong>Dano:</strong> <span data-value-target="damage"></span></div>
+                                <div><strong>Alcance:</strong> <span data-value-target="range"></span></div>
+                                <div><strong>Troca:</strong> <span data-value-target="swap"></span></div>
+                                <div><strong>P.E.:</strong> <span data-value-target="pe" class="weapon-pe-view"></span></div>
+                            </div>
+                            <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
+                        </div>
                     </div>
-                    <textarea class="form-textarea mt-3" rows="2" placeholder="Vantagens, desvantagens, acessórios..."></textarea>
-                    <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs mt-3" onclick="document.getElementById('${weaponId}').remove(); updateTotals();">Remover</button>
+                </div>
+                <!-- Edit Mode -->
+                <div class="edit-mode">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <label for="${inputId}" class="weapon-image-container">
+                            <img id="${imgId}" src="" class="weapon-image hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <input type="file" id="${inputId}" accept="image/*" class="hidden weapon-image-upload">
+                        </label>
+                        <div class="flex-grow">
+                            <input type="text" class="form-input mb-3" placeholder="Nome da Arma" data-value-source="name">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="text" class="form-input" placeholder="Dano" data-value-source="damage">
+                                <input type="text" class="form-input" placeholder="Alcance" data-value-source="range">
+                                <input type="text" class="form-input" placeholder="Troca" data-value-source="swap">
+                                <input type="number" class="form-input weapon-pe" placeholder="P.E." data-value-source="pe">
+                            </div>
+                            <textarea class="form-textarea mt-3" rows="2" placeholder="Vantagens, desvantagens, acessórios..." data-value-source="desc"></textarea>
+                            <div class="flex gap-2 mt-3">
+                                <button class="btn btn-secondary bg-green-600 hover:bg-green-700 text-xs save-card-btn">Salvar</button>
+                                <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">Remover</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -510,16 +792,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addEquipment() {
         const list = document.getElementById('equipment-list');
-        const equipId = `equip-${Date.now()}`;
+        const id = Date.now();
+        const equipId = `equip-${id}`;
         const equipHTML = `
-            <div id="${equipId}" class="card bg-gray-900 p-3">
-                <div class="flex items-center gap-3">
-                    <input type="text" class="form-input flex-grow" placeholder="Nome do Item">
-                    <input type="number" step="0.5" class="form-input w-24 equipment-carga" placeholder="Carga">
-                    <input type="number" step="0.5" class="form-input w-24 equipment-pe" placeholder="P.E.">
-                    <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs" onclick="document.getElementById('${equipId}').remove(); updateTotals();">X</button>
+            <div id="${equipId}" class="card bg-gray-900 p-3 dynamic-card">
+                <!-- View Mode -->
+                <div class="view-mode">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-md font-bold text-white" data-value-target="name">Nome do Item</h3>
+                        <div>
+                            <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
+                            <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">X</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 mt-2 text-sm">
+                        <div><strong>Carga:</strong> <span data-value-target="carga" class="equipment-carga-view"></span></div>
+                        <div><strong>P.E.:</strong> <span data-value-target="pe" class="equipment-pe-view"></span></div>
+                    </div>
+                    <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
                 </div>
-                <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição do item..."></textarea>
+                <!-- Edit Mode -->
+                <div class="edit-mode">
+                    <div class="flex items-center gap-3">
+                        <input type="text" class="form-input flex-grow" placeholder="Nome do Item" data-value-source="name">
+                        <input type="number" step="0.5" class="form-input w-24 equipment-carga" placeholder="Carga" data-value-source="carga">
+                        <input type="number" step="0.5" class="form-input w-24 equipment-pe" placeholder="P.E." data-value-source="pe">
+                    </div>
+                    <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição do item..." data-value-source="desc"></textarea>
+                    <div class="flex gap-2 mt-2">
+                        <button class="btn btn-secondary bg-green-600 hover:bg-green-700 text-xs save-card-btn">Salvar</button>
+                        <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">Remover</button>
+                    </div>
+                </div>
             </div>
         `;
         list.insertAdjacentHTML('beforeend', equipHTML);
@@ -527,14 +831,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function addGenericItem(listId, placeholder) {
         const list = document.getElementById(listId);
-        const itemId = `item-${Date.now()}`;
+        const id = Date.now();
+        const itemId = `item-${id}`;
         const itemHTML = `
-             <div id="${itemId}" class="card bg-gray-900 p-3">
-                <div class="flex items-center gap-3">
-                    <input type="text" class="form-input flex-grow" placeholder="Nome do ${placeholder}">
-                    <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs" onclick="document.getElementById('${itemId}').remove()">X</button>
+             <div id="${itemId}" class="card bg-gray-900 p-3 dynamic-card">
+                <!-- View Mode -->
+                <div class="view-mode">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-md font-bold text-white" data-value-target="name">Nome do Item</h3>
+                        <div>
+                            <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
+                            <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">X</button>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
                 </div>
-                <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição..."></textarea>
+                <!-- Edit Mode -->
+                <div class="edit-mode">
+                    <div class="flex items-center gap-3">
+                        <input type="text" class="form-input flex-grow" placeholder="Nome do ${placeholder}" data-value-source="name">
+                    </div>
+                    <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição..." data-value-source="desc"></textarea>
+                    <div class="flex gap-2 mt-2">
+                        <button class="btn btn-secondary bg-green-600 hover:bg-green-700 text-xs save-card-btn">Salvar</button>
+                        <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">Remover</button>
+                    </div>
+                </div>
             </div>
         `;
         list.insertAdjacentHTML('beforeend', itemHTML);
@@ -561,13 +883,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
 
         const reader = new FileReader();
-        const imgElement = event.target.closest('.weapon-image-container').querySelector('.weapon-image');
-        const placeholderIcon = event.target.closest('.weapon-image-container').querySelector('svg');
+        const container = event.target.closest('.weapon-image-container');
+        const imgElement = container.querySelector('.weapon-image');
+        const placeholderIcon = container.querySelector('svg');
 
         reader.onload = (e) => {
-            imgElement.src = e.target.result;
+            const dataUrl = e.target.result;
+            imgElement.src = dataUrl;
             imgElement.classList.remove('hidden');
             if(placeholderIcon) placeholderIcon.classList.add('hidden');
+            container.closest('.dynamic-card').dataset.imageSrc = dataUrl; 
         };
         reader.readAsDataURL(file);
     }
@@ -580,8 +905,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- DATA PERSISTENCE ---
+    function kebabToCamel(s) {
+        return s.replace(/-./g, x => x[1].toUpperCase());
+    }
 
     function getCharacterDataAsObject() {
+        // First, ensure any cards in edit mode are saved to their dataset
+        document.querySelectorAll('.dynamic-card:not(.view-state) .save-card-btn').forEach(btn => btn.click());
+
         const data = {
             inputs: {},
             checkboxes: {},
@@ -610,32 +941,33 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('textarea').forEach(el => data.textareas[el.id] = el.value);
         document.querySelectorAll('select').forEach(el => data.selects[el.id] = el.value);
         
-        document.querySelectorAll('#weapons-list > div').forEach(div => {
+        document.querySelectorAll('#weapons-list > div').forEach(card => {
             data.dynamic.weapons.push({
-                name: div.querySelector('input[placeholder="Nome da Arma"]').value,
-                damage: div.querySelector('input[placeholder="Dano"]').value,
-                range: div.querySelector('input[placeholder="Alcance"]').value,
-                pe: div.querySelector('.weapon-pe').value,
-                desc: div.querySelector('textarea').value,
-                imageSrc: div.querySelector('.weapon-image').src
+                name: card.dataset.name || '',
+                damage: card.dataset.damage || '',
+                range: card.dataset.range || '',
+                swap: card.dataset.swap || '',
+                pe: card.dataset.pe || '',
+                desc: card.dataset.desc || '',
+                imageSrc: card.dataset.imageSrc || ''
             });
         });
-        document.querySelectorAll('#equipment-list > div').forEach(div => {
+        document.querySelectorAll('#equipment-list > div').forEach(card => {
             data.dynamic.equipment.push({
-                name: div.querySelector('input[type="text"]').value,
-                carga: div.querySelector('.equipment-carga').value,
-                pe: div.querySelector('.equipment-pe').value,
-                desc: div.querySelector('textarea').value,
+                name: card.dataset.name || '',
+                carga: card.dataset.carga || '',
+                pe: card.dataset.pe || '',
+                desc: card.dataset.desc || '',
             });
         });
-        document.querySelectorAll('#titles-list > div, #talents-list > div, #traits-list > div').forEach(div => {
+        document.querySelectorAll('#titles-list > div, #talents-list > div, #traits-list > div').forEach(card => {
             const item = {
-                name: div.querySelector('input[type="text"]').value,
-                desc: div.querySelector('textarea').value,
+                name: card.dataset.name || '',
+                desc: card.dataset.desc || '',
             };
-            if(div.parentElement.id === 'titles-list') data.dynamic.titles.push(item);
-            else if(div.parentElement.id === 'talents-list') data.dynamic.talents.push(item);
-            else if(div.parentElement.id === 'traits-list') data.dynamic.traits.push(item);
+            if(card.parentElement.id === 'titles-list') data.dynamic.titles.push(item);
+            else if(card.parentElement.id === 'talents-list') data.dynamic.talents.push(item);
+            else if(card.parentElement.id === 'traits-list') data.dynamic.traits.push(item);
         });
         return data;
     }
@@ -678,45 +1010,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.dynamic.weapons.forEach(w => {
             addWeapon();
-            const last = document.querySelector('#weapons-list > div:last-child');
-            last.querySelector('input[placeholder="Nome da Arma"]').value = w.name;
-            last.querySelector('input[placeholder="Dano"]').value = w.damage;
-            last.querySelector('input[placeholder="Alcance"]').value = w.range;
-            last.querySelector('.weapon-pe').value = w.pe;
-            last.querySelector('textarea').value = w.desc;
+            const card = document.querySelector('#weapons-list > div:last-child');
+            Object.assign(card.dataset, w);
+            card.querySelector('[data-value-target="name"]').textContent = w.name;
+            card.querySelector('[data-value-target="damage"]').textContent = w.damage;
+            card.querySelector('[data-value-target="range"]').textContent = w.range;
+            card.querySelector('[data-value-target="swap"]').textContent = w.swap;
+            card.querySelector('[data-value-target="pe"]').textContent = w.pe;
+            card.querySelector('[data-value-target="desc"]').textContent = w.desc;
+            
             if (w.imageSrc && w.imageSrc.startsWith('data:image')) {
-                const img = last.querySelector('.weapon-image');
-                const placeholder = last.querySelector('svg');
-                img.src = w.imageSrc;
-                img.classList.remove('hidden');
-                placeholder.classList.add('hidden');
+                const viewImg = card.querySelector('.weapon-image-view');
+                const editImg = card.querySelector('.edit-mode .weapon-image');
+                const placeholder = card.querySelector('.edit-mode svg');
+                
+                viewImg.src = w.imageSrc;
+                editImg.src = w.imageSrc;
+                viewImg.classList.remove('hidden');
+                editImg.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('hidden');
             }
+            card.classList.add('view-state');
         });
         data.dynamic.equipment.forEach(e => {
             addEquipment();
-            const last = document.querySelector('#equipment-list > div:last-child');
-            last.querySelector('input[type="text"]').value = e.name;
-            last.querySelector('.equipment-carga').value = e.carga;
-            last.querySelector('.equipment-pe').value = e.pe;
-            last.querySelector('textarea').value = e.desc;
+            const card = document.querySelector('#equipment-list > div:last-child');
+            Object.assign(card.dataset, e);
+            card.querySelector('[data-value-target="name"]').textContent = e.name;
+            card.querySelector('[data-value-target="carga"]').textContent = e.carga;
+            card.querySelector('[data-value-target="pe"]').textContent = e.pe;
+            card.querySelector('[data-value-target="desc"]').textContent = e.desc;
+            card.classList.add('view-state');
         });
         data.dynamic.titles.forEach(t => {
             addGenericItem('titles-list', 'Título');
-            const last = document.querySelector('#titles-list > div:last-child');
-            last.querySelector('input[type="text"]').value = t.name;
-            last.querySelector('textarea').value = t.desc;
+            const card = document.querySelector('#titles-list > div:last-child');
+            Object.assign(card.dataset, t);
+            card.querySelector('[data-value-target="name"]').textContent = t.name;
+            card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+            card.classList.add('view-state');
         });
         data.dynamic.talents.forEach(t => {
             addGenericItem('talents-list', 'Talento');
-            const last = document.querySelector('#talents-list > div:last-child');
-            last.querySelector('input[type="text"]').value = t.name;
-            last.querySelector('textarea').value = t.desc;
+            const card = document.querySelector('#talents-list > div:last-child');
+            Object.assign(card.dataset, t);
+            card.querySelector('[data-value-target="name"]').textContent = t.name;
+            card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+            card.classList.add('view-state');
         });
         data.dynamic.traits.forEach(t => {
             addGenericItem('traits-list', 'Habilidade/Traço');
-            const last = document.querySelector('#traits-list > div:last-child');
-            last.querySelector('input[type="text"]').value = t.name;
-            last.querySelector('textarea').value = t.desc;
+            const card = document.querySelector('#traits-list > div:last-child');
+            Object.assign(card.dataset, t);
+            card.querySelector('[data-value-target="name"]').textContent = t.name;
+            card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+            card.classList.add('view-state');
         });
 
         updateSheet();
@@ -745,7 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const blob = new Blob([dataStr], {type: "application/json"});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        const charName = document.getElementById('char-name').value || 'personagem';
+        const charName = document.getElementById('char-codename').value || 'personagem';
         a.href = url;
         a.download = `${charName.replace(/\s+/g, '_')}-projeto141.json`;
         document.body.appendChild(a);
@@ -782,3 +1130,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
     });
+ 

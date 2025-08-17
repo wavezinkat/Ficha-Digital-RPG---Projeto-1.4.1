@@ -152,3 +152,18 @@ input[type="checkbox"]:disabled {
     height: 100%;
     object-fit: cover;
 }
+
+/* Card View/Edit Styles */
+.dynamic-card .view-mode {
+    display: none;
+}
+.dynamic-card.view-state .view-mode {
+    display: block;
+}
+.dynamic-card.view-state .edit-mode {
+    display: none;
+}
+.item-desc-view {
+    white-space: pre-wrap; /* Allows text to wrap */
+    word-break: break-word;
+}
