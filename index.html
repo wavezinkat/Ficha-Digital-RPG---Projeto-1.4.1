@@ -4,12 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ficha de Personagem - Projeto 141</title>
+    <!-- Favicon (ícone da aba) -->
+    <link id="favicon" rel="icon" type="image/png" href="https://i.ibb.co/kVbkv06v/Capa-frente-removebg-preview-removebg-preview.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
+            /* Imagem de fundo */
+            background-image: url('https://i.ibb.co/SXXcY2Mm/Thumb-visao-de-cima.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: #d1d5db; /* text-gray-300 */
         }
         .tab-content {
@@ -41,11 +47,13 @@
             cursor: not-allowed;
         }
         .card {
-            background-color: #1f2937; /* bg-gray-800 */
+            background-color: rgba(31, 41, 55, 0.8); /* bg-gray-800 com transparência */
             border: 1px solid #374151; /* border-gray-700 */
             border-radius: 0.5rem; /* rounded-lg */
             padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         .btn {
             padding: 0.5rem 1rem;
@@ -97,6 +105,43 @@
             margin-left: auto;
             margin-right: auto;
         }
+        /* Custom Dropdown for Flags */
+        .custom-select-container {
+            position: relative;
+        }
+        .custom-select-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            text-align: left;
+        }
+        .custom-select-button img {
+            width: 20px;
+            height: 15px;
+            margin-right: 8px;
+            object-fit: cover;
+        }
+        .custom-select-options {
+            position: absolute;
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 0.375rem;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            margin-top: 4px;
+        }
+        .custom-select-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+        }
+        .custom-select-option:hover {
+            background-color: #4b5563;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -104,13 +149,21 @@
     <div class="max-w-7xl mx-auto">
         <!-- HEADER -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-white mb-4 md:mb-0">
-                <span class="text-blue-400">PROJETO 141</span> // Ficha de Operador
+            <h1 class="text-3xl font-bold text-white mb-4 md:mb-0 flex-grow flex items-center">
+                <!-- Logo -->
+                <img src="https://i.ibb.co/kVbkv06v/Capa-frente-removebg-preview-removebg-preview.png" alt="Logo Projeto 141" class="h-16 mr-4">
+                <span class="hidden sm:inline">// Ficha de Operador</span>
             </h1>
-            <div class="flex space-x-2">
-                <button id="save-btn" class="btn btn-primary">Salvar Personagem</button>
-                <button id="load-btn" class="btn btn-secondary">Carregar Personagem</button>
-                 <button id="clear-btn" class="btn btn-secondary bg-red-600 hover:bg-red-700">Limpar Ficha</button>
+            <div class="flex items-center space-x-4">
+                <div class="flex space-x-2">
+                    <button id="save-btn" class="btn btn-primary">Salvar Personagem</button>
+                    <button id="load-btn" class="btn btn-secondary">Carregar Personagem</button>
+                    <button id="clear-btn" class="btn btn-secondary bg-red-600 hover:bg-red-700">Limpar Ficha</button>
+                </div>
+                <div id="char-portrait-container" class="w-20 h-20 bg-gray-800 border-2 border-gray-700 rounded-full flex items-center justify-center text-gray-500 overflow-hidden shrink-0">
+                    <img id="char-portrait" src="" class="hidden w-full h-full object-cover">
+                    <svg id="portrait-placeholder" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
             </div>
         </div>
 
@@ -137,7 +190,10 @@
                             <div class="space-y-3">
                                 <div><label class="text-sm font-medium">Nome Real</label><input type="text" id="char-name" class="form-input"></div>
                                 <div><label class="text-sm font-medium">Codinome</label><input type="text" id="char-codename" class="form-input"></div>
-                                <div><label class="text-sm font-medium">Nacionalidade</label><input type="text" id="char-nationality" class="form-input"></div>
+                                <div>
+                                    <label class="text-sm font-medium">Nacionalidade</label>
+                                    <div id="nationality-select-container" class="custom-select-container"></div>
+                                </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div><label class="text-sm font-medium">Nível</label><input type="number" id="char-level" value="1" class="form-input"></div>
                                     <div><label class="text-sm font-medium">Inspiração</label><input type="checkbox" id="char-inspiration" class="h-6 w-6 mt-2 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500"></div>
@@ -148,6 +204,10 @@
                              <h2 class="text-xl font-semibold mb-4 text-white">Origem</h2>
                              <div class="space-y-3">
                                 <div><label class="text-sm font-medium">Classe</label><select id="char-class" class="form-select"></select></div>
+                                <div id="specialization-wrapper" class="hidden">
+                                    <label class="text-sm font-medium">Especialização</label>
+                                    <select id="char-specialization" class="form-select"></select>
+                                </div>
                                 <div><label class="text-sm font-medium">Tipo de Humanidade</label><select id="char-race" class="form-select"></select></div>
                                 <div id="mutant-subtype-wrapper" class="hidden">
                                   <label class="text-sm font-medium">Tipagem de Mutante</label>
@@ -188,7 +248,7 @@
                                 </div>
                                 <div>
                                     <label class="text-sm font-medium">Deslocamento</label>
-                                    <div id="char-speed" class="text-3xl font-bold mt-1 p-3 bg-gray-900 rounded-lg">9m</div>
+                                    <input type="text" id="char-speed" class="form-input text-center text-xl font-bold mt-1 p-3" value="9m">
                                 </div>
                             </div>
                             <div class="mt-6">
@@ -268,7 +328,7 @@
             
             <!-- HABILIDADES TAB -->
             <div id="habilidades" class="tab-content">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-xl font-semibold text-white">Habilidades de Raça/Classe</h2>
@@ -288,6 +348,13 @@
                             <button id="add-talent-btn" class="btn btn-primary text-sm">Adicionar</button>
                         </div>
                         <div id="talents-list" class="space-y-2"></div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-white">Habilidades Únicas</h2>
+                            <button id="add-trait-btn" class="btn btn-primary text-sm">Adicionar</button>
+                        </div>
+                        <div id="traits-list" class="space-y-2"></div>
                     </div>
                 </div>
             </div>
@@ -321,6 +388,10 @@
                         <div class="card">
                             <h2 class="text-xl font-semibold text-white mb-4">Aparência & Personalidade</h2>
                             <textarea id="char-appearance" class="form-textarea" rows="6" placeholder="Descreva a aparência e personalidade do seu operador..."></textarea>
+                            <div class="mt-4">
+                                <label for="char-image-upload" class="block text-sm font-medium mb-1">Imagem do Operador</label>
+                                <input type="file" id="char-image-upload" accept="image/*" class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            </div>
                         </div>
                          <div class="card">
                             <h2 class="text-xl font-semibold text-white mb-4">Aliados & Sinergia</h2>
@@ -352,12 +423,15 @@
             "Persuasão": "CHA", "Intimidação": "CHA", "Enganação": "CHA", "Atuação": "CHA"
         };
         
+        const COUNTRIES = {
+            'AF': 'Afeganistão', 'ZA': 'África do Sul', 'AL': 'Albânia', 'DE': 'Alemanha', 'AD': 'Andorra', 'AO': 'Angola', 'SA': 'Arábia Saudita', 'DZ': 'Argélia', 'AR': 'Argentina', 'AM': 'Armênia', 'AU': 'Austrália', 'AT': 'Áustria', 'AZ': 'Azerbaijão', 'BS': 'Bahamas', 'BD': 'Bangladesh', 'BB': 'Barbados', 'BE': 'Bélgica', 'BZ': 'Belize', 'BJ': 'Benin', 'BY': 'Bielorrússia', 'BO': 'Bolívia', 'BA': 'Bósnia e Herzegovina', 'BW': 'Botsuana', 'BR': 'Brasil', 'BG': 'Bulgária', 'BF': 'Burkina Faso', 'BI': 'Burundi', 'BT': 'Butão', 'CV': 'Cabo Verde', 'CM': 'Camarões', 'KH': 'Camboja', 'CA': 'Canadá', 'QA': 'Catar', 'KZ': 'Cazaquistão', 'TD': 'Chade', 'CL': 'Chile', 'CN': 'China', 'CY': 'Chipre', 'CO': 'Colômbia', 'CG': 'Congo', 'CD': 'Congo (RDC)', 'KR': 'Coreia do Sul', 'CI': 'Costa do Marfim', 'CR': 'Costa Rica', 'HR': 'Croácia', 'CU': 'Cuba', 'DK': 'Dinamarca', 'DJ': 'Djibuti', 'DM': 'Dominica', 'EG': 'Egito', 'SV': 'El Salvador', 'AE': 'Emirados Árabes Unidos', 'EC': 'Equador', 'SK': 'Eslováquia', 'SI': 'Eslovênia', 'ES': 'Espanha', 'US': 'Estados Unidos', 'EE': 'Estônia', 'ET': 'Etiópia', 'FJ': 'Fiji', 'PH': 'Filipinas', 'FI': 'Finlândia', 'FR': 'França', 'GA': 'Gabão', 'GM': 'Gâmbia', 'GH': 'Gana', 'GE': 'Geórgia', 'GR': 'Grécia', 'GT': 'Guatemala', 'GN': 'Guiné', 'GW': 'Guiné-Bissau', 'GQ': 'Guiné Equatorial', 'GY': 'Guiana', 'HT': 'Haiti', 'NL': 'Holanda', 'HN': 'Honduras', 'HU': 'Hungria', 'YE': 'Iêmen', 'IN': 'Índia', 'ID': 'Indonésia', 'IQ': 'Iraque', 'IR': 'Irã', 'IE': 'Irlanda', 'IS': 'Islândia', 'IL': 'Israel', 'IT': 'Itália', 'JM': 'Jamaica', 'JP': 'Japão', 'JO': 'Jordânia', 'KW': 'Kuwait', 'LA': 'Laos', 'LV': 'Letônia', 'LB': 'Líbano', 'LT': 'Lituânia', 'LU': 'Luxemburgo', 'MY': 'Malásia', 'MW': 'Malawi', 'MV': 'Maldivas', 'ML': 'Mali', 'MT': 'Malta', 'MA': 'Marrocos', 'MU': 'Maurício', 'MR': 'Mauritânia', 'MX': 'México', 'MD': 'Moldávia', 'MC': 'Mônaco', 'MN': 'Mongólia', 'ME': 'Montenegro', 'MZ': 'Moçambique', 'MM': 'Mianmar', 'NP': 'Nepal', 'NI': 'Nicarágua', 'NE': 'Níger', 'NG': 'Nigéria', 'NO': 'Noruega', 'NZ': 'Nova Zelândia', 'OM': 'Omã', 'PK': 'Paquistão', 'PA': 'Panamá', 'PY': 'Paraguai', 'PE': 'Peru', 'PL': 'Polônia', 'PT': 'Portugal', 'KE': 'Quênia', 'GB': 'Reino Unido', 'CZ': 'República Tcheca', 'RO': 'Romênia', 'RW': 'Ruanda', 'RU': 'Rússia', 'SN': 'Senegal', 'SL': 'Serra Leoa', 'RS': 'Sérvia', 'SG': 'Singapura', 'SY': 'Síria', 'SO': 'Somália', 'LK': 'Sri Lanka', 'SE': 'Suécia', 'CH': 'Suíça', 'SR': 'Suriname', 'TH': 'Tailândia', 'TZ': 'Tanzânia', 'TJ': 'Tajiquistão', 'TG': 'Togo', 'TT': 'Trinidad e Tobago', 'TN': 'Tunísia', 'TR': 'Turquia', 'UA': 'Ucrânia', 'UG': 'Uganda', 'UY': 'Uruguai', 'UZ': 'Uzbequistão', 'VE': 'Venezuela', 'VN': 'Vietnã', 'ZM': 'Zâmbia', 'ZW': 'Zimbábue', 'OTHER': 'Outro'
+        };
+
         const RACIAL_FEATURES = {
             "Humano": {
                 speed: "9m",
                 features: [
                     { name: "Aumento no Valor de Habilidade", desc: "Possui 4 pontos de distribuição que não podem acumular no mesmo atributo." },
-                    { name: "Deslocamento", desc: "Seu deslocamento base de caminhada é 9 metros." },
                     { name: "Perícia", desc: "Você ganha proficiência em UMA perícia, à sua escolha." },
                     { name: "Talento", desc: "Você ganha UM talento a sua escolha." }
                 ],
@@ -367,7 +441,6 @@
                 speed: "11m",
                 features: [
                     { name: "Aumento no Valor de Habilidade", desc: "Seu valor de Força ou Destreza aumenta em 2 e seu valor de Constituição e Inteligência aumenta em 1." },
-                    { name: "Deslocamento", desc: "Seu deslocamento base é 11 metros." },
                     { name: "Talento", desc: "Você ganha UM talento, à sua escolha." },
                     { name: "Ameaçador", desc: "Você adquire proficiência na perícia Intimidação." }
                 ],
@@ -418,12 +491,33 @@
 
         const CLASSES = {
             "Assalto": { hitDice: 12, saves: ["FOR", "CON"] },
-            "Corpo a corpo": { hitDice: 12, saves: ["FOR", "CON"] },
+            "Corpo a corpo": { hitDice: 12, saves: ["CON"], choice: ["FOR", "DEX"] },
             "Suporte": { hitDice: 8, saves: ["INT", "CHA"] },
             "Cobra": { hitDice: 8, saves: ["DEX", "INT"] },
             "Franco-atirador": { hitDice: 6, saves: ["DEX", "SAB"] },
             "Hacker": { hitDice: 6, saves: ["INT", "CHA"] },
             "Especialista": { hitDice: 10, saves: ["FOR", "INT"] }
+        };
+
+        const SPECIALIZATIONS = {
+            "Armeiro": [
+                { name: "A ARMA CERTA PARA O TRABALHO", desc: "Nível 1: Proficiência em todas as armas de fogo e coletes. Usa metade do Mod de Proficiência no dano da arma." },
+                { name: "ACESSORIOS!!", desc: "Nível 3: Cancela o uso de 1/2 PE de acessórios de armas (aumenta no nível 14)." },
+                { name: "SLOT TATICO", desc: "Nível 5: Nega o uso de PE em 2 granadas (aumenta para 3 e 4 nos níveis 8 e 13)." },
+                { name: "ARMA FAVORITA", desc: "Nível 7: Gaste 30min para tornar uma arma sua favorita, ganhando benefícios." },
+                { name: "REDUZIR P.E", desc: "Nível 10: Pode melhorar uma arma para diminuir o PE em 1 (aumenta para 2 no nível 17)." },
+                { name: "ARSENAL PERFEITO", desc: "Nível 13: Com 3+ acessórios na arma, a proficiência é dobrada nos disparos." },
+                { name: "ARMADO", desc: "Nível 15: Pode remover e colocar acessórios fora do QG com um kit de reparos." },
+            ],
+            "Engenheiro": [
+                { name: "MELHORIA", desc: "Nível 1: Equipamentos criados/modificados por você possuem maior melhoria (1 por equipamento, aumenta para 2 no nível 11)." },
+                { name: "SLOT TATICO", desc: "Nível 3: Nega o uso de PE em 2 granadas (aumenta para 3 e 4 nos níveis 8 e 13)." },
+                { name: "SLOT EXTRA", desc: "Nível 5: Nega uso de PE em equipamentos. Ganha 1+ PE a cada 5 níveis." },
+                { name: "CRIAR", desc: "Nível 7: Pode fazer equipamentos que já conhece gastando dinheiro e tempo." },
+                { name: "REPARAR", desc: "Nível 10: Pode reparar autômatos e equipamentos. Autômatos curam 1d10 + INT." },
+                { name: "REDUZIR P.E", desc: "Nível 13: Pode melhorar um equipamento para diminuir o PE." },
+                { name: "REUTILIZAR", desc: "Nível 15: Gaste 1 kit de reparo para ter um uso extra em seu equipamento." },
+            ]
         };
 
         // --- INITIALIZATION ---
@@ -445,6 +539,14 @@
                 classSelect.appendChild(option);
             });
 
+            const specSelect = document.getElementById('char-specialization');
+            Object.keys(SPECIALIZATIONS).forEach(s => {
+                const option = document.createElement('option');
+                option.value = s;
+                option.textContent = s;
+                specSelect.appendChild(option);
+            });
+
             const raceSelect = document.getElementById('char-race');
             Object.keys(RACIAL_FEATURES).forEach(r => {
                 const option = document.createElement('option');
@@ -460,6 +562,30 @@
                 option.textContent = m;
                 mutantSelect.appendChild(option);
             });
+
+            // Create custom nationality dropdown
+            const nationalityContainer = document.getElementById('nationality-select-container');
+            const dropdownId = 'char-nationality';
+            const buttonHTML = `
+                <button type="button" id="${dropdownId}-button" class="form-input custom-select-button">
+                    <span class="flex items-center">
+                        <img src="https://flagcdn.com/w20/us.png" alt="Bandeira">
+                        <span>Estados Unidos</span>
+                    </span>
+                    <svg class="w-5 h-5 ml-2 -mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                </button>`;
+            const optionsHTML = `<div id="${dropdownId}-options" class="custom-select-options hidden"></div>`;
+            nationalityContainer.innerHTML = `<input type="hidden" id="${dropdownId}" value="US">` + buttonHTML + optionsHTML;
+
+            const optionsContainer = document.getElementById(`${dropdownId}-options`);
+            for (const code in COUNTRIES) {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('custom-select-option');
+                optionDiv.dataset.value = code;
+                const flagUrl = code === 'OTHER' ? 'https://placehold.co/20x15/374151/d1d5db?text=?' : `https://flagcdn.com/w20/${code.toLowerCase()}.png`;
+                optionDiv.innerHTML = `<img src="${flagUrl}" alt="Bandeira de ${COUNTRIES[code]}"> <span>${COUNTRIES[code]}</span>`;
+                optionsContainer.appendChild(optionDiv);
+            }
         }
 
         function renderAttributes() {
@@ -527,9 +653,19 @@
             // Update sheet on any input change
             document.querySelector('.max-w-7xl').addEventListener('input', updateSheet);
             
-            // Special case for race dropdown to show/hide mutant subtype
+            // Image Upload
+            document.getElementById('char-image-upload').addEventListener('change', handleImageUpload);
+
+            // Special case for dropdowns to show/hide sections
             document.getElementById('char-race').addEventListener('change', (e) => {
                 document.getElementById('mutant-subtype-wrapper').classList.toggle('hidden', e.target.value !== 'Mutante');
+                if (e.target.value !== 'Mutante') {
+                    document.getElementById('char-speed').value = RACIAL_FEATURES[e.target.value].speed;
+                }
+                updateSheet();
+            });
+            document.getElementById('char-class').addEventListener('change', (e) => {
+                document.getElementById('specialization-wrapper').classList.toggle('hidden', e.target.value !== 'Especialista');
                 updateSheet();
             });
 
@@ -538,11 +674,37 @@
             document.getElementById('add-equipment-btn').addEventListener('click', addEquipment);
             document.getElementById('add-title-btn').addEventListener('click', () => addGenericItem('titles-list', 'Título'));
             document.getElementById('add-talent-btn').addEventListener('click', () => addGenericItem('talents-list', 'Talento'));
+            document.getElementById('add-trait-btn').addEventListener('click', () => addGenericItem('traits-list', 'Habilidade/Traço'));
 
             // Save/Load/Clear
             document.getElementById('save-btn').addEventListener('click', saveCharacter);
             document.getElementById('load-btn').addEventListener('click', loadCharacter);
             document.getElementById('clear-btn').addEventListener('click', clearCharacter);
+            
+            // Custom Dropdown Logic
+            const nationalityButton = document.getElementById('char-nationality-button');
+            const nationalityOptions = document.getElementById('char-nationality-options');
+            nationalityButton.addEventListener('click', () => {
+                nationalityOptions.classList.toggle('hidden');
+            });
+            
+            nationalityOptions.addEventListener('click', (e) => {
+                const option = e.target.closest('.custom-select-option');
+                if (option) {
+                    const value = option.dataset.value;
+                    document.getElementById('char-nationality').value = value;
+                    const buttonContent = nationalityButton.querySelector('span');
+                    const flagUrl = value === 'OTHER' ? 'https://placehold.co/20x15/374151/d1d5db?text=?' : `https://flagcdn.com/w20/${value.toLowerCase()}.png`;
+                    buttonContent.innerHTML = `<img src="${flagUrl}" alt="Bandeira de ${COUNTRIES[value]}"> <span>${COUNTRIES[value]}</span>`;
+                    nationalityOptions.classList.add('hidden');
+                }
+            });
+
+            window.addEventListener('click', (e) => {
+                if (!document.getElementById('nationality-select-container').contains(e.target)) {
+                    nationalityOptions.classList.add('hidden');
+                }
+            });
         }
 
         // --- UPDATE LOGIC ---
@@ -565,20 +727,45 @@
             }
 
             // Saving Throws
-            const selectedClass = CLASSES[document.getElementById('char-class').value];
-            document.querySelectorAll('[id^="prof-save-"]').forEach(cb => cb.checked = false);
+            const selectedClassName = document.getElementById('char-class').value;
+            const selectedClass = CLASSES[selectedClassName];
+            
+            document.querySelectorAll('[id^="prof-save-"]').forEach(cb => {
+                if(!cb.dataset.manual) {
+                    cb.checked = false;
+                    cb.disabled = true;
+                } else {
+                    cb.disabled = false;
+                }
+            });
+
             if (selectedClass) {
                 selectedClass.saves.forEach(save => {
                     document.getElementById(`prof-save-${save.toLowerCase()}`).checked = true;
                 });
+
+                if (selectedClass.choice) {
+                    selectedClass.choice.forEach(choice => {
+                        const checkbox = document.getElementById(`prof-save-${choice.toLowerCase()}`);
+                        checkbox.disabled = false;
+                        checkbox.dataset.manual = true;
+                    });
+                } else {
+                     Object.keys(ATTRIBUTES).forEach(key => {
+                        const checkbox = document.getElementById(`prof-save-${key.toLowerCase()}`);
+                        if (checkbox.dataset.manual) {
+                            delete checkbox.dataset.manual;
+                            checkbox.checked = false;
+                        }
+                     });
+                }
             }
+            
             for (const key in ATTRIBUTES) {
                 const isProficient = document.getElementById(`prof-save-${key.toLowerCase()}`).checked;
                 const bonus = modifiers[key] + (isProficient ? profBonus : 0);
                 document.getElementById(`bonus-save-${key.toLowerCase()}`).textContent = bonus >= 0 ? `+${bonus}` : bonus;
             }
-
-            // Skills are updated after racial features
             
             // Combat Stats
             const dexMod = modifiers.DEX;
@@ -615,6 +802,8 @@
             featuresList.innerHTML = '';
             const selectedRaceName = document.getElementById('char-race').value;
             const selectedRaceData = RACIAL_FEATURES[selectedRaceName];
+            
+            document.getElementById('char-speed').dataset.manual = document.getElementById('char-speed').value !== selectedRaceData.speed;
 
             // Clear old racial profs
             document.querySelectorAll('[data-racial-prof="true"]').forEach(el => {
@@ -624,7 +813,6 @@
             });
 
             if (selectedRaceData) {
-                document.getElementById('char-speed').textContent = selectedRaceData.speed;
                 selectedRaceData.features.forEach(feature => {
                     featuresList.innerHTML += `<div class="text-sm"><p class="font-semibold text-blue-300">${feature.name}</p><p class="text-xs text-gray-400 pl-2">${feature.desc}</p></div>`;
                 });
@@ -641,7 +829,6 @@
                     const selectedSubtypeName = document.getElementById('char-mutant-subtype').value;
                     const selectedSubtypeData = MUTANT_SUBTYPE_FEATURES[selectedSubtypeName];
                     if (selectedSubtypeData) {
-                        // Replace the generic mutant feature description
                         featuresList.innerHTML = ''; 
                         selectedSubtypeData.features.forEach(feature => {
                             featuresList.innerHTML += `<div class="text-sm mt-2"><p class="font-semibold text-purple-300">${feature.name}</p><p class="text-xs text-gray-400 pl-2">${feature.desc}</p></div>`;
@@ -657,8 +844,19 @@
                     }
                 }
             }
+
+            const selectedClassName = document.getElementById('char-class').value;
+            if (selectedClassName === 'Especialista') {
+                const selectedSpecName = document.getElementById('char-specialization').value;
+                const selectedSpecData = SPECIALIZATIONS[selectedSpecName];
+                if (selectedSpecData) {
+                    featuresList.innerHTML += '<hr class="border-gray-600 my-3">';
+                    selectedSpecData.forEach(feature => {
+                        featuresList.innerHTML += `<div class="text-sm"><p class="font-semibold text-green-300">${feature.name}</p><p class="text-xs text-gray-400 pl-2">${feature.desc}</p></div>`;
+                    });
+                }
+            }
             
-            // Recalculate all skill bonuses after potential changes
             for (const skill in SKILLS) {
                 const attr = SKILLS[skill];
                 const isProficient = document.getElementById(`prof-skill-${skill.replace(/\s+/g, '')}`).checked;
@@ -668,7 +866,6 @@
         }
 
         function updateTotals() {
-            // Recalculate PE and Carga from items
             let currentPE = 0;
             document.querySelectorAll('.weapon-pe, .equipment-pe').forEach(input => {
                 currentPE += parseFloat(input.value) || 0;
@@ -682,7 +879,6 @@
             document.getElementById('carga-current').textContent = currentCarga;
         }
 
-        // --- DYNAMIC ITEM MANAGEMENT ---
         function addWeapon() {
             const list = document.getElementById('weapons-list');
             const weaponId = `weapon-${Date.now()}`;
@@ -712,6 +908,7 @@
                         <input type="number" step="0.5" class="form-input w-24 equipment-pe" placeholder="P.E.">
                         <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs" onclick="document.getElementById('${equipId}').remove(); updateTotals();">X</button>
                     </div>
+                    <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição do item..."></textarea>
                 </div>
             `;
             list.insertAdjacentHTML('beforeend', equipHTML);
@@ -732,59 +929,76 @@
             list.insertAdjacentHTML('beforeend', itemHTML);
         }
 
-        // --- DATA PERSISTENCE ---
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const portraitImg = document.getElementById('char-portrait');
+                const placeholderIcon = document.getElementById('portrait-placeholder');
+
+                portraitImg.src = e.target.result;
+                portraitImg.classList.remove('hidden');
+                if(placeholderIcon) placeholderIcon.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
         function saveCharacter() {
             const data = {
                 inputs: {},
                 checkboxes: {},
                 textareas: {},
                 selects: {},
+                nationality: document.getElementById('char-nationality').value,
+                portraitSrc: document.getElementById('char-portrait').src,
                 dynamic: {
                     weapons: [],
                     equipment: [],
                     titles: [],
-                    talents: []
+                    talents: [],
+                    traits: []
                 }
             };
 
-            // Save simple inputs, textareas, selects
             document.querySelectorAll('input[type="text"], input[type="number"]').forEach(el => {
                 if (!el.disabled) data.inputs[el.id] = el.value;
             });
             document.querySelectorAll('input[type="checkbox"]').forEach(el => {
-                if (!el.disabled) data.checkboxes[el.id] = el.checked;
+                if (el.dataset.manual || !el.disabled) {
+                    data.checkboxes[el.id] = el.checked;
+                }
             });
             document.querySelectorAll('textarea').forEach(el => data.textareas[el.id] = el.value);
             document.querySelectorAll('select').forEach(el => data.selects[el.id] = el.value);
             
-            // Save dynamic items
             document.querySelectorAll('#weapons-list > div').forEach(div => {
-                const weapon = {
-                    name: div.children[0].children[0].value,
-                    damage: div.children[0].children[1].value,
-                    range: div.children[0].children[2].value,
-                    pe: div.children[0].children[3].value,
-                    desc: div.children[1].value,
-                };
-                data.dynamic.weapons.push(weapon);
+                data.dynamic.weapons.push({
+                    name: div.querySelector('input:nth-child(1)').value,
+                    damage: div.querySelector('input:nth-child(2)').value,
+                    range: div.querySelector('input:nth-child(3)').value,
+                    pe: div.querySelector('.weapon-pe').value,
+                    desc: div.querySelector('textarea').value,
+                });
             });
             document.querySelectorAll('#equipment-list > div').forEach(div => {
-                const item = {
-                    name: div.children[0].children[0].value,
-                    carga: div.children[0].children[1].value,
-                    pe: div.children[0].children[2].value,
-                };
-                data.dynamic.equipment.push(item);
+                data.dynamic.equipment.push({
+                    name: div.querySelector('input[type="text"]').value,
+                    carga: div.querySelector('.equipment-carga').value,
+                    pe: div.querySelector('.equipment-pe').value,
+                    desc: div.querySelector('textarea').value,
+                });
             });
-            document.querySelectorAll('#titles-list > div, #talents-list > div').forEach(div => {
+            document.querySelectorAll('#titles-list > div, #talents-list > div, #traits-list > div').forEach(div => {
                 const item = {
-                    name: div.children[0].children[0].value,
-                    desc: div.children[1].value,
+                    name: div.querySelector('input[type="text"]').value,
+                    desc: div.querySelector('textarea').value,
                 };
                 if(div.parentElement.id === 'titles-list') data.dynamic.titles.push(item);
-                else data.dynamic.talents.push(item);
+                else if(div.parentElement.id === 'talents-list') data.dynamic.talents.push(item);
+                else if(div.parentElement.id === 'traits-list') data.dynamic.traits.push(item);
             });
-
 
             localStorage.setItem('projeto141Character', JSON.stringify(data));
             alert('Personagem salvo com sucesso!');
@@ -798,51 +1012,71 @@
             }
             const data = JSON.parse(dataString);
             
-            // Clear current dynamic items
             document.getElementById('weapons-list').innerHTML = '';
             document.getElementById('equipment-list').innerHTML = '';
             document.getElementById('titles-list').innerHTML = '';
             document.getElementById('talents-list').innerHTML = '';
+            document.getElementById('traits-list').innerHTML = '';
 
-            // Load simple values
             for(const id in data.inputs) if(document.getElementById(id)) document.getElementById(id).value = data.inputs[id];
             for(const id in data.checkboxes) if(document.getElementById(id)) document.getElementById(id).checked = data.checkboxes[id];
             for(const id in data.textareas) if(document.getElementById(id)) document.getElementById(id).value = data.textareas[id];
             for(const id in data.selects) if(document.getElementById(id)) document.getElementById(id).value = data.selects[id];
 
-            // Trigger change event to show/hide mutant dropdown
-            document.getElementById('char-race').dispatchEvent(new Event('change'));
+            if (data.nationality) {
+                const value = data.nationality;
+                document.getElementById('char-nationality').value = value;
+                const buttonContent = document.getElementById('char-nationality-button').querySelector('span');
+                const flagUrl = value === 'OTHER' ? 'https://placehold.co/20x15/374151/d1d5db?text=?' : `https://flagcdn.com/w20/${value.toLowerCase()}.png`;
+                buttonContent.innerHTML = `<img src="${flagUrl}" alt="Bandeira de ${COUNTRIES[value]}"> <span>${COUNTRIES[value]}</span>`;
+            }
 
-            // Load dynamic items
+            if (data.portraitSrc && data.portraitSrc.startsWith('data:image')) {
+                const portraitImg = document.getElementById('char-portrait');
+                const placeholderIcon = document.getElementById('portrait-placeholder');
+                portraitImg.src = data.portraitSrc;
+                portraitImg.classList.remove('hidden');
+                if(placeholderIcon) placeholderIcon.classList.add('hidden');
+            }
+
+            document.getElementById('char-race').dispatchEvent(new Event('change'));
+            document.getElementById('char-class').dispatchEvent(new Event('change'));
+
             data.dynamic.weapons.forEach(w => {
                 addWeapon();
-                const lastWeapon = document.querySelector('#weapons-list > div:last-child');
-                lastWeapon.children[0].children[0].value = w.name;
-                lastWeapon.children[0].children[1].value = w.damage;
-                lastWeapon.children[0].children[2].value = w.range;
-                lastWeapon.children[0].children[3].value = w.pe;
-                lastWeapon.children[1].value = w.desc;
+                const last = document.querySelector('#weapons-list > div:last-child');
+                last.querySelector('input:nth-child(1)').value = w.name;
+                last.querySelector('input:nth-child(2)').value = w.damage;
+                last.querySelector('input:nth-child(3)').value = w.range;
+                last.querySelector('.weapon-pe').value = w.pe;
+                last.querySelector('textarea').value = w.desc;
             });
             data.dynamic.equipment.forEach(e => {
                 addEquipment();
-                const lastEquip = document.querySelector('#equipment-list > div:last-child');
-                lastEquip.children[0].children[0].value = e.name;
-                lastEquip.children[0].children[1].value = e.carga;
-                lastEquip.children[0].children[2].value = e.pe;
+                const last = document.querySelector('#equipment-list > div:last-child');
+                last.querySelector('input[type="text"]').value = e.name;
+                last.querySelector('.equipment-carga').value = e.carga;
+                last.querySelector('.equipment-pe').value = e.pe;
+                last.querySelector('textarea').value = e.desc;
             });
             data.dynamic.titles.forEach(t => {
                 addGenericItem('titles-list', 'Título');
-                const lastTitle = document.querySelector('#titles-list > div:last-child');
-                lastTitle.children[0].children[0].value = t.name;
-                lastTitle.children[1].value = t.desc;
+                const last = document.querySelector('#titles-list > div:last-child');
+                last.querySelector('input[type="text"]').value = t.name;
+                last.querySelector('textarea').value = t.desc;
             });
             data.dynamic.talents.forEach(t => {
                 addGenericItem('talents-list', 'Talento');
-                const lastTalent = document.querySelector('#talents-list > div:last-child');
-                lastTalent.children[0].children[0].value = t.name;
-                lastTalent.children[1].value = t.desc;
+                const last = document.querySelector('#talents-list > div:last-child');
+                last.querySelector('input[type="text"]').value = t.name;
+                last.querySelector('textarea').value = t.desc;
             });
-
+            data.dynamic.traits.forEach(t => {
+                addGenericItem('traits-list', 'Habilidade/Traço');
+                const last = document.querySelector('#traits-list > div:last-child');
+                last.querySelector('input[type="text"]').value = t.name;
+                last.querySelector('textarea').value = t.desc;
+            });
 
             updateSheet();
             alert('Personagem carregado!');
@@ -855,7 +1089,6 @@
             }
         }
 
-        // --- START THE APP ---
         init();
     });
     </script>
