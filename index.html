@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Personagem - Projeto 141</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-input, .form-select, .form-textarea {
+            background-color: #374151; /* bg-gray-700 */
+            border-color: #4b5563; /* border-gray-600 */
+            color: #d1d5db; /* text-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #60a5fa; /* border-blue-400 */
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
+        }
+        .form-input:disabled, .form-select:disabled {
+            background-color: #4b5563;
+            cursor: not-allowed;
+        }
+        input[type="checkbox"]:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .card {
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* bg-blue-600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb; /* bg-blue-700 */
+        }
+        .btn-secondary {
+            background-color: #4b5563; /* bg-gray-600 */
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #6b7280; /* bg-gray-500 */
+        }
+        .tab-btn {
+            background-color: transparent;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+        }
+        .tab-btn.active {
+            border-bottom-color: #3b82f6; /* border-blue-600 */
+            color: #eff6ff; /* text-blue-50 */
+        }
+        .attribute-box {
+            background-color: #374151;
+            border-radius: 0.5rem;
+            text-align: center;
+            padding: 1rem;
+        }
+        .attribute-mod {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .attribute-score {
+            margin-top: 0.5rem;
+            border: 1px solid #4b5563;
+            background-color: #1f2937;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            width: 4rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-white mb-4 md:mb-0">
+                <span class="text-blue-400">PROJETO 141</span> // Ficha de Operador
+            </h1>
+            <div class="flex space-x-2">
+                <button id="save-btn" class="btn btn-primary">Salvar Personagem</button>
+                <button id="load-btn" class="btn btn-secondary">Carregar Personagem</button>
+                 <button id="clear-btn" class="btn btn-secondary bg-red-600 hover:bg-red-700">Limpar Ficha</button>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="mb-6 border-b border-gray-700">
+            <nav class="flex flex-wrap -mb-px space-x-4" aria-label="Tabs">
+                <button class="tab-btn active" data-tab="principal">Principal</button>
+                <button class="tab-btn" data-tab="combate">Combate</button>
+                <button class="tab-btn" data-tab="habilidades">Habilidades & Títulos</button>
+                <button class="tab-btn" data-tab="inventario">Inventário</button>
+                <button class="tab-btn" data-tab="notas">Notas & RP</button>
+            </nav>
+        </div>
+
+        <!-- CONTENT -->
+        <main>
+            <!-- PRINCIPAL TAB -->
+            <div id="principal" class="tab-content active">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Coluna 1: Informações Básicas -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Identificação do Operador</h2>
+                            <div class="space-y-3">
+                                <div><label class="text-sm font-medium">Nome Real</label><input type="text" id="char-name" class="form-input"></div>
+                                <div><label class="text-sm font-medium">Codinome</label><input type="text" id="char-codename" class="form-input"></div>
+                                <div><label class="text-sm font-medium">Nacionalidade</label><input type="text" id="char-nationality" class="form-input"></div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div><label class="text-sm font-medium">Nível</label><input type="number" id="char-level" value="1" class="form-input"></div>
+                                    <div><label class="text-sm font-medium">Inspiração</label><input type="checkbox" id="char-inspiration" class="h-6 w-6 mt-2 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                             <h2 class="text-xl font-semibold mb-4 text-white">Origem</h2>
+                             <div class="space-y-3">
+                                <div><label class="text-sm font-medium">Classe</label><select id="char-class" class="form-select"></select></div>
+                                <div><label class="text-sm font-medium">Tipo de Humanidade</label><select id="char-race" class="form-select"></select></div>
+                                <div id="mutant-subtype-wrapper" class="hidden">
+                                  <label class="text-sm font-medium">Tipagem de Mutante</label>
+                                  <select id="char-mutant-subtype" class="form-select"></select>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Testes de Resistência</h2>
+                            <div id="saving-throws" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Atributos e Perícias -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Atributos</h2>
+                            <div id="attributes" class="grid grid-cols-2 gap-4"></div>
+                        </div>
+                         <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Perícias</h2>
+                            <div id="skills" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 3: Combate e Vitalidade -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Vitalidade</h2>
+                             <div class="grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <label class="text-sm font-medium">CA</label>
+                                    <div id="char-ac" class="text-3xl font-bold mt-1 p-3 bg-gray-900 rounded-lg">10</div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Iniciativa</label>
+                                    <div id="char-initiative" class="text-3xl font-bold mt-1 p-3 bg-gray-900 rounded-lg">+0</div>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Deslocamento</label>
+                                    <div id="char-speed" class="text-3xl font-bold mt-1 p-3 bg-gray-900 rounded-lg">9m</div>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <label class="text-sm font-medium">Pontos de Vida</label>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <input type="number" id="char-hp-current" class="form-input text-center" placeholder="Atual">
+                                    <span class="text-lg">/</span>
+                                    <input type="number" id="char-hp-max" class="form-input text-center" placeholder="Máximo">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="text-sm font-medium">Dados de Vida</label>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <input type="text" id="char-hit-dice" class="form-input text-center" placeholder="Total" disabled>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Defesas</h2>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm font-medium">Bônus Colete</label>
+                                    <input type="number" id="ac-bonus-vest" class="form-input text-center" value="0">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Bônus Escudo</label>
+                                    <input type="number" id="ac-bonus-shield" class="form-input text-center" value="0">
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Outros Bônus CA</label>
+                                    <input type="number" id="ac-bonus-other" class="form-input text-center" value="0">
+                                </div>
+                                 <div>
+                                    <label class="text-sm font-medium">Outros Bônus Iniciativa</label>
+                                    <input type="number" id="init-bonus-other" class="form-input text-center" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white">Recursos</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-sm font-medium">P.E. (Pontos de Equipamento)</label>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <div id="pe-current" class="form-input text-center bg-gray-900">0</div>
+                                        <span class="text-lg">/</span>
+                                        <div id="pe-max" class="form-input text-center bg-gray-900">4</div>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1">Base: <span id="pe-base">4</span> + Força (Armas): <span id="pe-str">0</span></p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-medium">Carga</label>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <div id="carga-current" class="form-input text-center bg-gray-900">0</div>
+                                        <span class="text-lg">/</span>
+                                        <div id="carga-max" class="form-input text-center bg-gray-900">8</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMBATE TAB -->
+            <div id="combate" class="tab-content">
+                <div class="card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-white">Armamento</h2>
+                        <button id="add-weapon-btn" class="btn btn-primary">Adicionar Arma</button>
+                    </div>
+                    <div id="weapons-list" class="space-y-4">
+                        <!-- Weapon entries will be added here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HABILIDADES TAB -->
+            <div id="habilidades" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-white">Habilidades de Raça/Classe</h2>
+                        </div>
+                        <div id="features-list" class="space-y-3"></div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-white">Títulos de Personagem</h2>
+                            <button id="add-title-btn" class="btn btn-primary text-sm">Adicionar</button>
+                        </div>
+                        <div id="titles-list" class="space-y-2"></div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-white">Talentos</h2>
+                            <button id="add-talent-btn" class="btn btn-primary text-sm">Adicionar</button>
+                        </div>
+                        <div id="talents-list" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVENTÁRIO TAB -->
+            <div id="inventario" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-white">Equipamentos</h2>
+                            <button id="add-equipment-btn" class="btn btn-primary">Adicionar Item</button>
+                        </div>
+                        <div id="equipment-list" class="space-y-2">
+                            <!-- Equipment items will be added here -->
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 class="text-xl font-semibold text-white">Dinheiro</h2>
+                        <div class="mt-4">
+                            <label class="text-sm font-medium">$$</label>
+                            <input type="number" id="char-money" class="form-input" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NOTAS TAB -->
+            <div id="notas" class="tab-content">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        <div class="card">
+                            <h2 class="text-xl font-semibold text-white mb-4">Aparência & Personalidade</h2>
+                            <textarea id="char-appearance" class="form-textarea" rows="6" placeholder="Descreva a aparência e personalidade do seu operador..."></textarea>
+                        </div>
+                         <div class="card">
+                            <h2 class="text-xl font-semibold text-white mb-4">Aliados & Sinergia</h2>
+                             <textarea id="char-allies" class="form-textarea" rows="6" placeholder="Liste seus contatos, aliados e o nível de sinergia..."></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 class="text-xl font-semibold text-white mb-4">História do Personagem</h2>
+                        <textarea id="char-backstory" class="form-textarea" rows="15" placeholder="Escreva a história do seu operador..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA FROM RULEBOOK ---
+        const ATTRIBUTES = {
+            FOR: "Força", DEX: "Destreza", CON: "Constituição",
+            INT: "Inteligência", SAB: "Sabedoria", CHA: "Carisma"
+        };
+
+        const SKILLS = {
+            "Atletismo": "FOR", "Aviação": "DEX", "Habilitação": "DEX", "Acrobacia": "DEX",
+            "Mãos Leves": "DEX", "Furtividade": "DEX", "Vigor": "CON", "Medicina": "SAB",
+            "Intuição": "SAB", "Percepção": "SAB", "Adestrar Animais": "SAB", "Sobrevivência": "SAB",
+            "Ciência": "INT", "Sabotagem": "INT", "Tecnologia": "INT", "Investigação": "INT",
+            "Persuasão": "CHA", "Intimidação": "CHA", "Enganação": "CHA", "Atuação": "CHA"
+        };
+        
+        const RACIAL_FEATURES = {
+            "Humano": {
+                speed: "9m",
+                features: [
+                    { name: "Aumento no Valor de Habilidade", desc: "Possui 4 pontos de distribuição que não podem acumular no mesmo atributo." },
+                    { name: "Deslocamento", desc: "Seu deslocamento base de caminhada é 9 metros." },
+                    { name: "Perícia", desc: "Você ganha proficiência em UMA perícia, à sua escolha." },
+                    { name: "Talento", desc: "Você ganha UM talento a sua escolha." }
+                ],
+                auto_skills: []
+            },
+            "Mecanizado": {
+                speed: "11m",
+                features: [
+                    { name: "Aumento no Valor de Habilidade", desc: "Seu valor de Força ou Destreza aumenta em 2 e seu valor de Constituição e Inteligência aumenta em 1." },
+                    { name: "Deslocamento", desc: "Seu deslocamento base é 11 metros." },
+                    { name: "Talento", desc: "Você ganha UM talento, à sua escolha." },
+                    { name: "Ameaçador", desc: "Você adquire proficiência na perícia Intimidação." }
+                ],
+                auto_skills: ["Intimidação"]
+            },
+            "Mutante": {
+                speed: "9m",
+                features: [
+                    { name: "Mutante", desc: "Selecione uma tipagem de mutante para ver suas habilidades." }
+                ],
+                auto_skills: []
+            }
+        };
+
+        const MUTANT_SUBTYPE_FEATURES = {
+            "Incendiário": {
+                features: [
+                    { name: "Aumento no Valor de Habilidade", desc: "Seu valor de força é aumentado em +2 e Constituição +1." },
+                    { name: "Sangue fervendo", desc: "O operador ganha proficiência em atletismo." },
+                    { name: "Superaquecer", desc: "1° Nível: 2d6 Dano incendiário, alcance 1m, 1 uso por descanso." }
+                ],
+                auto_skills: ["Atletismo"]
+            },
+            "Blitz": {
+                features: [
+                    { name: "Aumento no Valor de Habilidade", desc: "Seu valor de Destreza é aumentado em +2 e Sabedoria +1." },
+                    { name: "Eletrizar", desc: "1° Nível: 2d4 Dano elétrico, alcance 3m, 2 usos por descanso." }
+                ],
+                auto_skills: []
+            },
+            "Anima": {
+                features: [
+                    { name: "Aumento no Valor de Habilidade", desc: "Seu valor de Força OU Destreza aumenta em 2 e seu valor de carisma aumenta em 1." },
+                    { name: "Sentidos aguçados", desc: "Escolha proficiência entre: Percepção, Intimidação e Intuição." },
+                    { name: "Intuição animal", desc: "Ganha proficiência em adestrar animais." }
+                ],
+                auto_skills: ["Adestrar Animais"]
+            },
+            "Sankta": {
+                features: [
+                    { name: "Aumento no valor de habilidade", desc: "Valor de destreza aumenta em 2. Bônus adicionais dependem da cor da auréola." },
+                    { name: "Auréola brilhante", desc: "O operador possui desvantagem em testes de furtividade (exceto auréola preta)." },
+                    { name: "Cores das Auréolas", desc: "Preta (+1 atributo, sem desvantagem), Branca (+1 atributo, prof. carisma), Vermelha (+1 FOR/CON, cura), Azul (+1 SAB/INT, remove oriopatia)." }
+                ],
+                auto_skills: []
+            }
+        };
+
+        const CLASSES = {
+            "Assalto": { hitDice: 12, saves: ["FOR", "CON"] },
+            "Corpo a corpo": { hitDice: 12, saves: ["FOR", "CON"] },
+            "Suporte": { hitDice: 8, saves: ["INT", "CHA"] },
+            "Cobra": { hitDice: 8, saves: ["DEX", "INT"] },
+            "Franco-atirador": { hitDice: 6, saves: ["DEX", "SAB"] },
+            "Hacker": { hitDice: 6, saves: ["INT", "CHA"] },
+            "Especialista": { hitDice: 10, saves: ["FOR", "INT"] }
+        };
+
+        // --- INITIALIZATION ---
+        function init() {
+            populateDropdowns();
+            renderAttributes();
+            renderSavingThrows();
+            renderSkills();
+            setupEventListeners();
+            updateSheet();
+        }
+
+        function populateDropdowns() {
+            const classSelect = document.getElementById('char-class');
+            Object.keys(CLASSES).forEach(c => {
+                const option = document.createElement('option');
+                option.value = c;
+                option.textContent = c;
+                classSelect.appendChild(option);
+            });
+
+            const raceSelect = document.getElementById('char-race');
+            Object.keys(RACIAL_FEATURES).forEach(r => {
+                const option = document.createElement('option');
+                option.value = r;
+                option.textContent = r;
+                raceSelect.appendChild(option);
+            });
+            
+            const mutantSelect = document.getElementById('char-mutant-subtype');
+            Object.keys(MUTANT_SUBTYPE_FEATURES).forEach(m => {
+                const option = document.createElement('option');
+                option.value = m;
+                option.textContent = m;
+                mutantSelect.appendChild(option);
+            });
+        }
+
+        function renderAttributes() {
+            const container = document.getElementById('attributes');
+            container.innerHTML = '';
+            for (const key in ATTRIBUTES) {
+                const attrHTML = `
+                    <div class="attribute-box">
+                        <label class="font-semibold text-white">${ATTRIBUTES[key]}</label>
+                        <div id="mod-${key.toLowerCase()}" class="attribute-mod">+0</div>
+                        <input type="number" id="score-${key.toLowerCase()}" class="form-input attribute-score" value="10">
+                    </div>
+                `;
+                container.innerHTML += attrHTML;
+            }
+        }
+
+        function renderSavingThrows() {
+            const container = document.getElementById('saving-throws');
+            container.innerHTML = '';
+            for (const key in ATTRIBUTES) {
+                const stHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="prof-save-${key.toLowerCase()}" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
+                            <label class="ml-2">${ATTRIBUTES[key]}</label>
+                        </div>
+                        <span id="bonus-save-${key.toLowerCase()}" class="font-bold">+0</span>
+                    </div>
+                `;
+                container.innerHTML += stHTML;
+            }
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skills');
+            container.innerHTML = '';
+            for (const skill in SKILLS) {
+                const attr = SKILLS[skill];
+                const skillHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="prof-skill-${skill.replace(/\s+/g, '')}" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
+                            <label class="ml-2">${skill} <span class="text-xs text-gray-500">(${attr})</span></label>
+                        </div>
+                        <span id="bonus-skill-${skill.replace(/\s+/g, '')}" class="font-bold">+0</span>
+                    </div>
+                `;
+                container.innerHTML += skillHTML;
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            // Tabs
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(button.dataset.tab).classList.add('active');
+                });
+            });
+
+            // Update sheet on any input change
+            document.querySelector('.max-w-7xl').addEventListener('input', updateSheet);
+            
+            // Special case for race dropdown to show/hide mutant subtype
+            document.getElementById('char-race').addEventListener('change', (e) => {
+                document.getElementById('mutant-subtype-wrapper').classList.toggle('hidden', e.target.value !== 'Mutante');
+                updateSheet();
+            });
+
+            // Add buttons
+            document.getElementById('add-weapon-btn').addEventListener('click', addWeapon);
+            document.getElementById('add-equipment-btn').addEventListener('click', addEquipment);
+            document.getElementById('add-title-btn').addEventListener('click', () => addGenericItem('titles-list', 'Título'));
+            document.getElementById('add-talent-btn').addEventListener('click', () => addGenericItem('talents-list', 'Talento'));
+
+            // Save/Load/Clear
+            document.getElementById('save-btn').addEventListener('click', saveCharacter);
+            document.getElementById('load-btn').addEventListener('click', loadCharacter);
+            document.getElementById('clear-btn').addEventListener('click', clearCharacter);
+        }
+
+        // --- UPDATE LOGIC ---
+        function getModifier(score) {
+            return Math.floor((score - 10) / 2);
+        }
+
+        function updateSheet() {
+            const level = parseInt(document.getElementById('char-level').value) || 1;
+            const profBonus = Math.floor((level - 1) / 4) + 2;
+
+            // Attributes and Modifiers
+            const modifiers = {};
+            for (const key in ATTRIBUTES) {
+                const scoreInput = document.getElementById(`score-${key.toLowerCase()}`);
+                const score = parseInt(scoreInput.value) || 10;
+                const mod = getModifier(score);
+                modifiers[key] = mod;
+                document.getElementById(`mod-${key.toLowerCase()}`).textContent = mod >= 0 ? `+${mod}` : mod;
+            }
+
+            // Saving Throws
+            const selectedClass = CLASSES[document.getElementById('char-class').value];
+            document.querySelectorAll('[id^="prof-save-"]').forEach(cb => cb.checked = false);
+            if (selectedClass) {
+                selectedClass.saves.forEach(save => {
+                    document.getElementById(`prof-save-${save.toLowerCase()}`).checked = true;
+                });
+            }
+            for (const key in ATTRIBUTES) {
+                const isProficient = document.getElementById(`prof-save-${key.toLowerCase()}`).checked;
+                const bonus = modifiers[key] + (isProficient ? profBonus : 0);
+                document.getElementById(`bonus-save-${key.toLowerCase()}`).textContent = bonus >= 0 ? `+${bonus}` : bonus;
+            }
+
+            // Skills are updated after racial features
+            
+            // Combat Stats
+            const dexMod = modifiers.DEX;
+            const vestBonus = parseInt(document.getElementById('ac-bonus-vest').value) || 0;
+            const shieldBonus = parseInt(document.getElementById('ac-bonus-shield').value) || 0;
+            const otherAcBonus = parseInt(document.getElementById('ac-bonus-other').value) || 0;
+            document.getElementById('char-ac').textContent = 10 + dexMod + vestBonus + shieldBonus + otherAcBonus;
+            
+            const otherInitBonus = parseInt(document.getElementById('init-bonus-other').value) || 0;
+            const totalInitiative = dexMod + otherInitBonus;
+            document.getElementById('char-initiative').textContent = totalInitiative >= 0 ? `+${totalInitiative}` : totalInitiative;
+            
+            // Hit Dice
+            if (selectedClass) {
+                document.getElementById('char-hit-dice').value = `${level}d${selectedClass.hitDice}`;
+            }
+
+            // P.E.
+            const peBase = 4 + Math.floor((level - 1) / 3) + (level >= 12 ? 1 : 0);
+            const peStr = modifiers.FOR > 0 ? modifiers.FOR : 0;
+            document.getElementById('pe-base').textContent = peBase;
+            document.getElementById('pe-str').textContent = peStr;
+            document.getElementById('pe-max').textContent = peBase + peStr;
+
+            // Carga
+            document.getElementById('carga-max').textContent = 8 + (modifiers.FOR * 2);
+            
+            updateRacialFeaturesAndSkills(modifiers, profBonus);
+            updateTotals();
+        }
+        
+        function updateRacialFeaturesAndSkills(modifiers, profBonus) {
+            const featuresList = document.getElementById('features-list');
+            featuresList.innerHTML = '';
+            const selectedRaceName = document.getElementById('char-race').value;
+            const selectedRaceData = RACIAL_FEATURES[selectedRaceName];
+
+            // Clear old racial profs
+            document.querySelectorAll('[data-racial-prof="true"]').forEach(el => {
+                el.checked = false;
+                el.disabled = false;
+                el.removeAttribute('data-racial-prof');
+            });
+
+            if (selectedRaceData) {
+                document.getElementById('char-speed').textContent = selectedRaceData.speed;
+                selectedRaceData.features.forEach(feature => {
+                    featuresList.innerHTML += `<div class="text-sm"><p class="font-semibold text-blue-300">${feature.name}</p><p class="text-xs text-gray-400 pl-2">${feature.desc}</p></div>`;
+                });
+                selectedRaceData.auto_skills.forEach(skill => {
+                    const skillCheckbox = document.getElementById(`prof-skill-${skill.replace(/\s+/g, '')}`);
+                    if (skillCheckbox) {
+                        skillCheckbox.checked = true;
+                        skillCheckbox.disabled = true;
+                        skillCheckbox.dataset.racialProf = "true";
+                    }
+                });
+
+                if (selectedRaceName === 'Mutante') {
+                    const selectedSubtypeName = document.getElementById('char-mutant-subtype').value;
+                    const selectedSubtypeData = MUTANT_SUBTYPE_FEATURES[selectedSubtypeName];
+                    if (selectedSubtypeData) {
+                        // Replace the generic mutant feature description
+                        featuresList.innerHTML = ''; 
+                        selectedSubtypeData.features.forEach(feature => {
+                            featuresList.innerHTML += `<div class="text-sm mt-2"><p class="font-semibold text-purple-300">${feature.name}</p><p class="text-xs text-gray-400 pl-2">${feature.desc}</p></div>`;
+                        });
+                        selectedSubtypeData.auto_skills.forEach(skill => {
+                            const skillCheckbox = document.getElementById(`prof-skill-${skill.replace(/\s+/g, '')}`);
+                            if (skillCheckbox) {
+                                skillCheckbox.checked = true;
+                                skillCheckbox.disabled = true;
+                                skillCheckbox.dataset.racialProf = "true";
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Recalculate all skill bonuses after potential changes
+            for (const skill in SKILLS) {
+                const attr = SKILLS[skill];
+                const isProficient = document.getElementById(`prof-skill-${skill.replace(/\s+/g, '')}`).checked;
+                const bonus = modifiers[attr] + (isProficient ? profBonus : 0);
+                document.getElementById(`bonus-skill-${skill.replace(/\s+/g, '')}`).textContent = bonus >= 0 ? `+${bonus}` : bonus;
+            }
+        }
+
+        function updateTotals() {
+            // Recalculate PE and Carga from items
+            let currentPE = 0;
+            document.querySelectorAll('.weapon-pe, .equipment-pe').forEach(input => {
+                currentPE += parseFloat(input.value) || 0;
+            });
+            document.getElementById('pe-current').textContent = currentPE;
+
+            let currentCarga = 0;
+            document.querySelectorAll('.equipment-carga').forEach(input => {
+                currentCarga += parseFloat(input.value) || 0;
+            });
+            document.getElementById('carga-current').textContent = currentCarga;
+        }
+
+        // --- DYNAMIC ITEM MANAGEMENT ---
+        function addWeapon() {
+            const list = document.getElementById('weapons-list');
+            const weaponId = `weapon-${Date.now()}`;
+            const weaponHTML = `
+                <div id="${weaponId}" class="card bg-gray-900 p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <input type="text" class="form-input" placeholder="Nome da Arma">
+                        <input type="text" class="form-input" placeholder="Dano">
+                        <input type="text" class="form-input" placeholder="Alcance">
+                        <input type="number" class="form-input weapon-pe" placeholder="P.E.">
+                    </div>
+                    <textarea class="form-textarea mt-3" rows="2" placeholder="Vantagens, desvantagens, acessórios..."></textarea>
+                    <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs mt-3" onclick="document.getElementById('${weaponId}').remove(); updateTotals();">Remover</button>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', weaponHTML);
+        }
+
+        function addEquipment() {
+            const list = document.getElementById('equipment-list');
+            const equipId = `equip-${Date.now()}`;
+            const equipHTML = `
+                <div id="${equipId}" class="card bg-gray-900 p-3">
+                    <div class="flex items-center gap-3">
+                        <input type="text" class="form-input flex-grow" placeholder="Nome do Item">
+                        <input type="number" step="0.5" class="form-input w-24 equipment-carga" placeholder="Carga">
+                        <input type="number" step="0.5" class="form-input w-24 equipment-pe" placeholder="P.E.">
+                        <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs" onclick="document.getElementById('${equipId}').remove(); updateTotals();">X</button>
+                    </div>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', equipHTML);
+        }
+        
+        function addGenericItem(listId, placeholder) {
+            const list = document.getElementById(listId);
+            const itemId = `item-${Date.now()}`;
+            const itemHTML = `
+                 <div id="${itemId}" class="card bg-gray-900 p-3">
+                    <div class="flex items-center gap-3">
+                        <input type="text" class="form-input flex-grow" placeholder="Nome do ${placeholder}">
+                        <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs" onclick="document.getElementById('${itemId}').remove()">X</button>
+                    </div>
+                    <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição..."></textarea>
+                </div>
+            `;
+            list.insertAdjacentHTML('beforeend', itemHTML);
+        }
+
+        // --- DATA PERSISTENCE ---
+        function saveCharacter() {
+            const data = {
+                inputs: {},
+                checkboxes: {},
+                textareas: {},
+                selects: {},
+                dynamic: {
+                    weapons: [],
+                    equipment: [],
+                    titles: [],
+                    talents: []
+                }
+            };
+
+            // Save simple inputs, textareas, selects
+            document.querySelectorAll('input[type="text"], input[type="number"]').forEach(el => {
+                if (!el.disabled) data.inputs[el.id] = el.value;
+            });
+            document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+                if (!el.disabled) data.checkboxes[el.id] = el.checked;
+            });
+            document.querySelectorAll('textarea').forEach(el => data.textareas[el.id] = el.value);
+            document.querySelectorAll('select').forEach(el => data.selects[el.id] = el.value);
+            
+            // Save dynamic items
+            document.querySelectorAll('#weapons-list > div').forEach(div => {
+                const weapon = {
+                    name: div.children[0].children[0].value,
+                    damage: div.children[0].children[1].value,
+                    range: div.children[0].children[2].value,
+                    pe: div.children[0].children[3].value,
+                    desc: div.children[1].value,
+                };
+                data.dynamic.weapons.push(weapon);
+            });
+            document.querySelectorAll('#equipment-list > div').forEach(div => {
+                const item = {
+                    name: div.children[0].children[0].value,
+                    carga: div.children[0].children[1].value,
+                    pe: div.children[0].children[2].value,
+                };
+                data.dynamic.equipment.push(item);
+            });
+            document.querySelectorAll('#titles-list > div, #talents-list > div').forEach(div => {
+                const item = {
+                    name: div.children[0].children[0].value,
+                    desc: div.children[1].value,
+                };
+                if(div.parentElement.id === 'titles-list') data.dynamic.titles.push(item);
+                else data.dynamic.talents.push(item);
+            });
+
+
+            localStorage.setItem('projeto141Character', JSON.stringify(data));
+            alert('Personagem salvo com sucesso!');
+        }
+
+        function loadCharacter() {
+            const dataString = localStorage.getItem('projeto141Character');
+            if (!dataString) {
+                alert('Nenhum personagem salvo encontrado.');
+                return;
+            }
+            const data = JSON.parse(dataString);
+            
+            // Clear current dynamic items
+            document.getElementById('weapons-list').innerHTML = '';
+            document.getElementById('equipment-list').innerHTML = '';
+            document.getElementById('titles-list').innerHTML = '';
+            document.getElementById('talents-list').innerHTML = '';
+
+            // Load simple values
+            for(const id in data.inputs) if(document.getElementById(id)) document.getElementById(id).value = data.inputs[id];
+            for(const id in data.checkboxes) if(document.getElementById(id)) document.getElementById(id).checked = data.checkboxes[id];
+            for(const id in data.textareas) if(document.getElementById(id)) document.getElementById(id).value = data.textareas[id];
+            for(const id in data.selects) if(document.getElementById(id)) document.getElementById(id).value = data.selects[id];
+
+            // Trigger change event to show/hide mutant dropdown
+            document.getElementById('char-race').dispatchEvent(new Event('change'));
+
+            // Load dynamic items
+            data.dynamic.weapons.forEach(w => {
+                addWeapon();
+                const lastWeapon = document.querySelector('#weapons-list > div:last-child');
+                lastWeapon.children[0].children[0].value = w.name;
+                lastWeapon.children[0].children[1].value = w.damage;
+                lastWeapon.children[0].children[2].value = w.range;
+                lastWeapon.children[0].children[3].value = w.pe;
+                lastWeapon.children[1].value = w.desc;
+            });
+            data.dynamic.equipment.forEach(e => {
+                addEquipment();
+                const lastEquip = document.querySelector('#equipment-list > div:last-child');
+                lastEquip.children[0].children[0].value = e.name;
+                lastEquip.children[0].children[1].value = e.carga;
+                lastEquip.children[0].children[2].value = e.pe;
+            });
+            data.dynamic.titles.forEach(t => {
+                addGenericItem('titles-list', 'Título');
+                const lastTitle = document.querySelector('#titles-list > div:last-child');
+                lastTitle.children[0].children[0].value = t.name;
+                lastTitle.children[1].value = t.desc;
+            });
+            data.dynamic.talents.forEach(t => {
+                addGenericItem('talents-list', 'Talento');
+                const lastTalent = document.querySelector('#talents-list > div:last-child');
+                lastTalent.children[0].children[0].value = t.name;
+                lastTalent.children[1].value = t.desc;
+            });
+
+
+            updateSheet();
+            alert('Personagem carregado!');
+        }
+        
+        function clearCharacter() {
+            if (confirm('Tem certeza que deseja limpar toda a ficha? Esta ação não pode ser desfeita.')) {
+                localStorage.removeItem('projeto141Character');
+                window.location.reload();
+            }
+        }
+
+        // --- START THE APP ---
+        init();
+    });
+    </script>
+</body>
+</html>
