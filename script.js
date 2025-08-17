@@ -293,12 +293,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    let attributeChart; // Variável global para o gráfico
+
     // --- INITIALIZATION ---
     function init() {
         populateDropdowns();
         renderAttributes();
         renderSavingThrows();
         renderSkills();
+        renderExhaustion();
+        initAttributeChart();
         setupEventListeners();
         updateSpecializationDropdown(); // Call this initially
         updateSheet();
@@ -362,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const classSpecs = SPECIALIZATIONS[selectedClass];
 
-        if (classSpecs) {
+        if (classSpecs && Object.keys(classSpecs).length > 0) {
             specWrapper.classList.remove('hidden');
             specSelect.innerHTML = ''; // Clear existing options
             Object.keys(classSpecs).forEach(specName => {
@@ -427,6 +431,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function renderExhaustion() {
+        const container = document.getElementById('exhaustion-levels');
+        const levels = [
+            "Desvantagem em testes de habilidade",
+            "Velocidade reduzida pela metade",
+            "Desvantagem em rolagens de ataque e testes de resistência",
+            "Pontos de vida máximo reduzidos pela metade",
+            "Velocidade reduzida a 0",
+            "Morte"
+        ];
+        container.innerHTML = levels.map((desc, i) => `
+            <div class="flex items-center text-sm">
+                <input type="checkbox" id="exhaustion-level-${i+1}" class="death-save mr-2">
+                <label for="exhaustion-level-${i+1}">Nível ${i+1}: ${desc}</label>
+            </div>
+        `).join('');
+    }
+
+    // --- CHART ---
+    function initAttributeChart() {
+        const ctx = document.getElementById('attributeChart').getContext('2d');
+        const isLightTheme = document.body.classList.contains('light-theme');
+        
+        const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid-color').trim();
+        const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-label-color').trim();
+        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+
+        attributeChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: Object.values(ATTRIBUTES),
+                datasets: [{
+                    label: 'Atributos',
+                    data: [10, 10, 10, 10, 10, 10],
+                    backgroundColor: `${accentColor}33`, // Accent with 20% opacity
+                    borderColor: accentColor,
+                    pointBackgroundColor: accentColor,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: accentColor
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { color: gridColor },
+                        grid: { color: gridColor },
+                        pointLabels: { color: labelColor, font: { size: 12 } },
+                        ticks: {
+                            display: false,
+                            stepSize: 5,
+                        },
+                        min: 0,
+                        max: 20
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    function updateAttributeChart() {
+        if (!attributeChart) return;
+        const scores = Object.keys(ATTRIBUTES).map(key => {
+            return parseInt(document.getElementById(`score-${key.toLowerCase()}`).value) || 0;
+        });
+        attributeChart.data.datasets[0].data = scores;
+        attributeChart.update();
+    }
+
+
     // --- EVENT LISTENERS ---
     function setupEventListeners() {
         // Tabs
@@ -442,9 +521,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update sheet on any input change
         document.querySelector('.max-w-7xl').addEventListener('input', updateSheet);
         
-        // Image Upload
+        // Image Upload & Theme
         document.getElementById('char-image-upload').addEventListener('change', handleImageUpload);
         document.getElementById('apply-background-btn').addEventListener('click', applyCustomBackground);
+        document.getElementById('theme-selector').addEventListener('change', (e) => applyTheme(e.target.value));
+
+        // Name visibility toggle
+        document.getElementById('toggle-name-visibility').addEventListener('click', () => {
+            const nameInput = document.getElementById('char-name');
+            const eyeOpen = document.getElementById('eye-open');
+            const eyeClosed = document.getElementById('eye-closed');
+            if (nameInput.type === 'password') {
+                nameInput.type = 'text';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            } else {
+                nameInput.type = 'password';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            }
+        });
 
         // Special case for dropdowns to show/hide sections
         document.getElementById('char-race').addEventListener('change', (e) => {
@@ -526,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modifiers[key] = mod;
             document.getElementById(`mod-${key.toLowerCase()}`).textContent = mod >= 0 ? `+${mod}` : mod;
         }
+        updateAttributeChart(); // Update the chart whenever attributes change
 
         // Saving Throws
         const selectedClassName = document.getElementById('char-class').value;
@@ -746,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <h3 class="text-lg font-bold text-white" data-value-target="name">Nome da Arma</h3>
                                 <div>
                                     <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
-                                    <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">X</button>
+                                    <button class="btn btn-danger text-xs remove-card-btn">X</button>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 mt-2 text-sm">
@@ -779,8 +876,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <textarea class="form-textarea mt-3" rows="2" placeholder="Vantagens, desvantagens, acessórios..." data-value-source="desc"></textarea>
                             <div class="flex gap-2 mt-3">
-                                <button class="btn btn-secondary bg-green-600 hover:bg-green-700 text-xs save-card-btn">Salvar</button>
-                                <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">Remover</button>
+                                <button class="btn btn-success text-xs save-card-btn">Salvar</button>
+                                <button class="btn btn-danger text-xs remove-card-btn">Remover</button>
                             </div>
                         </div>
                     </div>
@@ -802,7 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 class="text-md font-bold text-white" data-value-target="name">Nome do Item</h3>
                         <div>
                             <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
-                            <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">X</button>
+                            <button class="btn btn-danger text-xs remove-card-btn">X</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-x-4 mt-2 text-sm">
@@ -820,8 +917,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição do item..." data-value-source="desc"></textarea>
                     <div class="flex gap-2 mt-2">
-                        <button class="btn btn-secondary bg-green-600 hover:bg-green-700 text-xs save-card-btn">Salvar</button>
-                        <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">Remover</button>
+                        <button class="btn btn-success text-xs save-card-btn">Salvar</button>
+                        <button class="btn btn-danger text-xs remove-card-btn">Remover</button>
                     </div>
                 </div>
             </div>
@@ -841,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 class="text-md font-bold text-white" data-value-target="name">Nome do Item</h3>
                         <div>
                             <button class="btn btn-secondary text-xs edit-card-btn">Editar</button>
-                            <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">X</button>
+                            <button class="btn btn-danger text-xs remove-card-btn">X</button>
                         </div>
                     </div>
                     <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
@@ -853,8 +950,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <textarea class="form-textarea mt-2" rows="2" placeholder="Descrição..." data-value-source="desc"></textarea>
                     <div class="flex gap-2 mt-2">
-                        <button class="btn btn-secondary bg-green-600 hover:bg-green-700 text-xs save-card-btn">Salvar</button>
-                        <button class="btn btn-secondary bg-red-600 hover:bg-red-700 text-xs remove-card-btn">Remover</button>
+                        <button class="btn btn-success text-xs save-card-btn">Salvar</button>
+                        <button class="btn btn-danger text-xs remove-card-btn">Remover</button>
                     </div>
                 </div>
             </div>
@@ -898,11 +995,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyCustomBackground() {
-        const url = document.getElementById('background-url-input').value;
-        if (url) {
-            document.body.style.backgroundImage = `url('${url}')`;
-        }
+        const urlInput = document.getElementById('background-url-input');
+        const url = urlInput.value;
+        if (!url) return;
+
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        
+        // Proxy to avoid CORS issues if possible
+        img.src = 'https://cors-anywhere.herokuapp.com/' + url;
+
+        img.onload = () => {
+            document.documentElement.style.setProperty('--bg-url', `url('${url}')`);
+            
+            const colorThief = new ColorThief();
+            try {
+                const dominantColor = colorThief.getColor(img);
+                const luminance = (0.299 * dominantColor[0] + 0.587 * dominantColor[1] + 0.114 * dominantColor[2]) / 255;
+                const theme = luminance > 0.5 ? 'light' : 'dark';
+                applyTheme(theme);
+                document.getElementById('theme-selector').value = theme;
+            } catch (e) {
+                console.error("Error getting color from image. Using default theme.", e);
+                applyTheme('dark'); // Fallback to dark theme
+                document.getElementById('theme-selector').value = 'dark';
+            }
+        };
+        img.onerror = () => {
+            // If proxy fails, try direct link and hope for the best
+            document.documentElement.style.setProperty('--bg-url', `url('${url}')`);
+            console.warn('Could not analyze image color due to CORS policy. Theme will not auto-update.');
+        };
     }
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+        } else {
+            document.body.classList.remove('light-theme');
+        }
+        // Re-initialize chart with new colors
+        if (attributeChart) {
+            attributeChart.destroy();
+        }
+        initAttributeChart();
+        updateAttributeChart();
+    }
+
 
     // --- DATA PERSISTENCE ---
     function kebabToCamel(s) {
@@ -921,6 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nationality: document.getElementById('char-nationality').value,
             portraitSrc: document.getElementById('char-portrait').src,
             backgroundUrl: document.getElementById('background-url-input').value,
+            theme: document.body.classList.contains('light-theme') ? 'light' : 'dark',
             dynamic: {
                 weapons: [],
                 equipment: [],
@@ -930,9 +1070,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        document.querySelectorAll('input[type="text"], input[type="number"]').forEach(el => {
+        document.querySelectorAll('input[type="text"]:not(#char-name), input[type="number"]').forEach(el => {
             if (!el.disabled) data.inputs[el.id] = el.value;
         });
+        // Handle name input separately to respect visibility toggle
+        data.inputs['char-name'] = document.getElementById('char-name').value;
+        
         document.querySelectorAll('input[type="checkbox"]').forEach(el => {
             if (el.dataset.manual || !el.disabled) {
                 data.checkboxes[el.id] = el.checked;
@@ -1002,11 +1145,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (data.backgroundUrl) {
             document.getElementById('background-url-input').value = data.backgroundUrl;
-            applyCustomBackground();
+            document.documentElement.style.setProperty('--bg-url', `url('${data.backgroundUrl}')`);
+        }
+        
+        if (data.theme) {
+            document.getElementById('theme-selector').value = data.theme;
+            applyTheme(data.theme);
         }
 
         document.getElementById('char-race').dispatchEvent(new Event('change'));
         document.getElementById('char-class').dispatchEvent(new Event('change'));
+        
+        if (data.selects && data.selects['char-specialization']) {
+            document.getElementById('char-specialization').value = data.selects['char-specialization'];
+        }
+
 
         data.dynamic.weapons.forEach(w => {
             addWeapon();
@@ -1058,14 +1211,16 @@ document.addEventListener('DOMContentLoaded', () => {
             card.querySelector('[data-value-target="desc"]').textContent = t.desc;
             card.classList.add('view-state');
         });
-        data.dynamic.traits.forEach(t => {
-            addGenericItem('traits-list', 'Habilidade/Traço');
-            const card = document.querySelector('#traits-list > div:last-child');
-            Object.assign(card.dataset, t);
-            card.querySelector('[data-value-target="name"]').textContent = t.name;
-            card.querySelector('[data-value-target="desc"]').textContent = t.desc;
-            card.classList.add('view-state');
-        });
+        if (data.dynamic.traits) {
+            data.dynamic.traits.forEach(t => {
+                addGenericItem('traits-list', 'Habilidade/Traço');
+                const card = document.querySelector('#traits-list > div:last-child');
+                Object.assign(card.dataset, t);
+                card.querySelector('[data-value-target="name"]').textContent = t.name;
+                card.querySelector('[data-value-target="desc"]').textContent = t.desc;
+                card.classList.add('view-state');
+            });
+        }
 
         updateSheet();
     }
@@ -1130,4 +1285,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
     });
- 

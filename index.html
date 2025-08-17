@@ -7,6 +7,8 @@
     <!-- Favicon (ícone da aba) -->
     <link id="favicon" rel="icon" type="image/png" href="https://i.ibb.co/kLc5wcC/imagem-2025-08-17-013323772.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Link para o arquivo CSS externo -->
     <link rel="stylesheet" href="style.css">
@@ -19,13 +21,13 @@
             <h1 class="text-3xl font-bold text-white mb-4 md:mb-0 flex-grow flex items-center">
                 <!-- Logo -->
                 <img src="https://i.ibb.co/kVbkv06v/Capa-frente-removebg-preview-removebg-preview.png" alt="Logo Projeto 141" class="h-24 mr-4">
-                <span class="hidden sm:inline">// Ficha de Operador</span>
+                <span class="hidden sm:inline header-title">// Ficha de Operador</span>
             </h1>
             <div class="flex items-center space-x-4">
                 <div class="flex space-x-2">
                     <button id="save-btn" class="btn btn-primary" title="Salva o personagem no cache do navegador">Salvar Rápido</button>
                     <button id="load-btn" class="btn btn-secondary" title="Carrega o personagem do cache do navegador">Carregar Rápido</button>
-                    <button id="clear-btn" class="btn btn-secondary bg-red-600 hover:bg-red-700">Limpar Ficha</button>
+                    <button id="clear-btn" class="btn btn-danger">Limpar Ficha</button>
                 </div>
                 <div id="char-portrait-container" class="w-20 h-20 bg-gray-800 border-2 border-gray-700 rounded-full flex items-center justify-center text-gray-500 overflow-hidden shrink-0">
                     <img id="char-portrait" src="" class="hidden w-full h-full object-cover">
@@ -54,9 +56,23 @@
                     <!-- Coluna 1: Informações Básicas -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Identificação do Operador</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Identificação do Operador</h2>
                             <div class="space-y-3">
-                                <div><label class="text-sm font-medium">Nome Real</label><input type="text" id="char-name" class="form-input"></div>
+                                <div>
+                                    <label class="text-sm font-medium">Nome Real</label>
+                                    <div class="relative">
+                                        <input type="text" id="char-name" class="form-input pr-10">
+                                        <button type="button" id="toggle-name-visibility" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-200">
+                                            <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .847 0 1.673.124 2.468.352M4.5 4.5l15 15" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div><label class="text-sm font-medium">Codinome</label><input type="text" id="char-codename" class="form-input"></div>
                                 <div>
                                     <label class="text-sm font-medium">Nacionalidade</label>
@@ -64,12 +80,21 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div><label class="text-sm font-medium">Nível</label><input type="number" id="char-level" value="1" class="form-input"></div>
-                                    <div><label class="text-sm font-medium">Inspiração</label><input type="checkbox" id="char-inspiration" class="h-6 w-6 mt-2 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500"></div>
+                                    <div class="flex items-center gap-4">
+                                        <div>
+                                            <label class="text-sm font-medium">Inspiração</label>
+                                            <input type="checkbox" id="char-inspiration" class="h-6 w-6 mt-1 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium">Conheço um cara</label>
+                                            <input type="checkbox" id="char-know-guy" class="h-6 w-6 mt-1 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card">
-                             <h2 class="text-xl font-semibold mb-4 text-white">Origem</h2>
+                             <h2 class="text-xl font-semibold mb-4 text-white card-title">Origem</h2>
                              <div class="space-y-3">
                                 <div><label class="text-sm font-medium">Classe</label><select id="char-class" class="form-select"></select></div>
                                 <div id="specialization-wrapper">
@@ -84,7 +109,7 @@
                              </div>
                         </div>
                         <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Testes de Resistência</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Testes de Resistência</h2>
                             <div id="saving-throws" class="space-y-2"></div>
                         </div>
                     </div>
@@ -92,11 +117,14 @@
                     <!-- Coluna 2: Atributos e Perícias -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Atributos</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Atributos</h2>
+                            <div class="mb-4">
+                                <canvas id="attributeChart"></canvas>
+                            </div>
                             <div id="attributes" class="grid grid-cols-2 gap-4"></div>
                         </div>
                          <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Perícias</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Perícias</h2>
                             <div id="skills" class="space-y-2"></div>
                         </div>
                     </div>
@@ -104,7 +132,7 @@
                     <!-- Coluna 3: Combate e Vitalidade -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Vitalidade</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Vitalidade</h2>
                              <div class="grid grid-cols-3 gap-4 text-center">
                                 <div>
                                     <label class="text-sm font-medium">CA</label>
@@ -135,7 +163,7 @@
                             </div>
                         </div>
                          <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Defesas</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Defesas</h2>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="text-sm font-medium">Bônus Colete</label>
@@ -156,7 +184,7 @@
                             </div>
                         </div>
                         <div class="card">
-                            <h2 class="text-xl font-semibold mb-4 text-white">Recursos</h2>
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Recursos</h2>
                             <div class="space-y-4">
                                 <div>
                                     <label class="text-sm font-medium">P.E. (Pontos de Equipamento)</label>
@@ -177,6 +205,30 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Salvaguardas & Exaustão</h2>
+                            <div>
+                                <label class="text-sm font-medium">Salvaguardas de Morte</label>
+                                <div class="flex justify-between mt-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span>Sucessos</span>
+                                        <input type="checkbox" id="death-save-success-1" class="death-save">
+                                        <input type="checkbox" id="death-save-success-2" class="death-save">
+                                        <input type="checkbox" id="death-save-success-3" class="death-save">
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span>Falhas</span>
+                                        <input type="checkbox" id="death-save-failure-1" class="death-save">
+                                        <input type="checkbox" id="death-save-failure-2" class="death-save">
+                                        <input type="checkbox" id="death-save-failure-3" class="death-save">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="text-sm font-medium">Níveis de Exaustão</label>
+                                <div id="exhaustion-levels" class="space-y-1 mt-1"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,7 +237,7 @@
             <div id="combate" class="tab-content">
                 <div class="card">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-white">Armamento</h2>
+                        <h2 class="text-xl font-semibold text-white card-title">Armamento</h2>
                         <button id="add-weapon-btn" class="btn btn-primary">Adicionar Arma</button>
                     </div>
                     <div id="weapons-list" class="space-y-4">
@@ -199,27 +251,27 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-white">Habilidades de Raça/Classe</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Habilidades de Raça/Classe</h2>
                         </div>
                         <div id="features-list" class="space-y-3"></div>
                     </div>
                     <div class="card">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-white">Títulos de Personagem</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Títulos de Personagem</h2>
                             <button id="add-title-btn" class="btn btn-primary text-sm">Adicionar</button>
                         </div>
                         <div id="titles-list" class="space-y-2"></div>
                     </div>
                     <div class="card">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-white">Talentos</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Talentos</h2>
                             <button id="add-talent-btn" class="btn btn-primary text-sm">Adicionar</button>
                         </div>
                         <div id="talents-list" class="space-y-2"></div>
                     </div>
                     <div class="card">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-white">Habilidades Únicas</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Habilidades Únicas</h2>
                             <button id="add-trait-btn" class="btn btn-primary text-sm">Adicionar</button>
                         </div>
                         <div id="traits-list" class="space-y-2"></div>
@@ -232,7 +284,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-white">Equipamentos</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Equipamentos</h2>
                             <button id="add-equipment-btn" class="btn btn-primary">Adicionar Item</button>
                         </div>
                         <div id="equipment-list" class="space-y-2">
@@ -240,7 +292,7 @@
                         </div>
                     </div>
                     <div class="card">
-                        <h2 class="text-xl font-semibold text-white">Dinheiro</h2>
+                        <h2 class="text-xl font-semibold text-white card-title">Dinheiro</h2>
                         <div class="mt-4">
                             <label class="text-sm font-medium">$$</label>
                             <input type="number" id="char-money" class="form-input" value="0">
@@ -254,7 +306,7 @@
                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-6">
                         <div class="card">
-                            <h2 class="text-xl font-semibold text-white mb-4">Aparência & Personalidade</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Aparência & Personalidade</h2>
                             <textarea id="char-appearance" class="form-textarea" rows="6" placeholder="Descreva a aparência e personalidade do seu operador..."></textarea>
                             <div class="mt-4">
                                 <label for="char-image-upload" class="block text-sm font-medium mb-1">Imagem do Operador</label>
@@ -262,12 +314,12 @@
                             </div>
                         </div>
                          <div class="card">
-                            <h2 class="text-xl font-semibold text-white mb-4">Aliados & Sinergia</h2>
+                            <h2 class="text-xl font-semibold text-white card-title">Aliados & Sinergia</h2>
                              <textarea id="char-allies" class="form-textarea" rows="6" placeholder="Liste seus contatos, aliados e o nível de sinergia..."></textarea>
                         </div>
                     </div>
                     <div class="card">
-                        <h2 class="text-xl font-semibold text-white mb-4">História do Personagem</h2>
+                        <h2 class="text-xl font-semibold text-white card-title">História do Personagem</h2>
                         <textarea id="char-backstory" class="form-textarea" rows="15" placeholder="Escreva a história do seu operador..."></textarea>
                     </div>
                 </div>
@@ -277,14 +329,14 @@
             <div id="salvar-carregar" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
-                        <h2 class="text-xl font-semibold text-white mb-4">Salvar Ficha em Arquivo</h2>
+                        <h2 class="text-xl font-semibold text-white card-title">Salvar Ficha em Arquivo</h2>
                         <p class="text-gray-400 mb-4">
                             Clique no botão abaixo para baixar um arquivo (.json) com todos os dados do seu personagem. Guarde este arquivo para backup ou para transferir para outro dispositivo.
                         </p>
                         <button id="download-btn" class="btn btn-primary w-full">Baixar Ficha (Arquivo)</button>
                     </div>
                     <div class="card">
-                        <h2 class="text-xl font-semibold text-white mb-4">Carregar Ficha de Arquivo</h2>
+                        <h2 class="text-xl font-semibold text-white card-title">Carregar Ficha de Arquivo</h2>
                         <p class="text-gray-400 mb-4">
                             Selecione um arquivo de personagem (.json) que você salvou anteriormente para carregar todas as informações na ficha.
                         </p>
@@ -292,13 +344,28 @@
                     </div>
                 </div>
                  <div class="card mt-6">
-                    <h2 class="text-xl font-semibold text-white mb-4">Plano de Fundo Personalizado</h2>
-                    <p class="text-gray-400 mb-4">
-                        Cole o link (URL) de uma imagem abaixo para usá-la como plano de fundo da sua ficha.
-                    </p>
-                    <div class="flex gap-2">
-                        <input type="text" id="background-url-input" class="form-input" placeholder="https://exemplo.com/imagem.png">
-                        <button id="apply-background-btn" class="btn btn-secondary">Aplicar</button>
+                    <h2 class="text-xl font-semibold text-white card-title">Plano de Fundo & Tema</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium">URL do Plano de Fundo</label>
+                            <p class="text-xs text-gray-400 mb-1">
+                                Cole o link (URL) de uma imagem para usá-la como plano de fundo.
+                            </p>
+                            <div class="flex gap-2">
+                                <input type="text" id="background-url-input" class="form-input" placeholder="https://exemplo.com/imagem.png">
+                                <button id="apply-background-btn" class="btn btn-secondary">Aplicar</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium">Tema da Ficha</label>
+                             <p class="text-xs text-gray-400 mb-1">
+                                Escolha um tema que combine com o plano de fundo.
+                            </p>
+                            <select id="theme-selector" class="form-select">
+                                <option value="dark">Tema Escuro</option>
+                                <option value="light">Tema Claro</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
