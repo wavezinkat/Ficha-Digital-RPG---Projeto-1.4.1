@@ -268,9 +268,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('add-trait-btn').addEventListener('click', () => addGenericItem('traits-list', 'Habilidade/Traço'));
 
         // Save/Load/Clear
-        document.getElementById('save-btn').addEventListener('click', saveCharacter);
-        document.getElementById('load-btn').addEventListener('click', loadCharacter);
+        document.getElementById('save-btn').addEventListener('click', saveCharacterToCache);
+        document.getElementById('load-btn').addEventListener('click', loadCharacterFromCache);
         document.getElementById('clear-btn').addEventListener('click', clearCharacter);
+        document.getElementById('download-btn').addEventListener('click', downloadCharacterFile);
+        document.getElementById('upload-file').addEventListener('change', uploadCharacterFile);
         
         // Custom Dropdown Logic
         const nationalityButton = document.getElementById('char-nationality-button');
@@ -401,6 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedRaceName = document.getElementById('char-race').value;
         const selectedRaceData = RACIAL_FEATURES[selectedRaceName];
         
+        document.getElementById('char-speed').dataset.manual = document.getElementById('char-speed').value !== selectedRaceData.speed;
+
         // Clear old racial profs
         document.querySelectorAll('[data-racial-prof="true"]').forEach(el => {
             el.checked = false;
@@ -569,7 +573,9 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     }
 
-    function saveCharacter() {
+    // --- DATA PERSISTENCE ---
+
+    function getCharacterDataAsObject() {
         const data = {
             inputs: {},
             checkboxes: {},
@@ -624,19 +630,10 @@ document.addEventListener('DOMContentLoaded', () => {
             else if(div.parentElement.id === 'talents-list') data.dynamic.talents.push(item);
             else if(div.parentElement.id === 'traits-list') data.dynamic.traits.push(item);
         });
-
-        localStorage.setItem('projeto141Character', JSON.stringify(data));
-        alert('Personagem salvo com sucesso!');
+        return data;
     }
 
-    function loadCharacter() {
-        const dataString = localStorage.getItem('projeto141Character');
-        if (!dataString) {
-            alert('Nenhum personagem salvo encontrado.');
-            return;
-        }
-        const data = JSON.parse(dataString);
-        
+    function loadCharacterFromData(data) {
         document.getElementById('weapons-list').innerHTML = '';
         document.getElementById('equipment-list').innerHTML = '';
         document.getElementById('titles-list').innerHTML = '';
@@ -711,7 +708,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         updateSheet();
-        alert('Personagem carregado!');
+    }
+
+    function saveCharacterToCache() {
+        const data = getCharacterDataAsObject();
+        localStorage.setItem('projeto141Character', JSON.stringify(data));
+        alert('Personagem salvo no cache do navegador!');
+    }
+
+    function loadCharacterFromCache() {
+        const dataString = localStorage.getItem('projeto141Character');
+        if (!dataString) {
+            alert('Nenhum personagem salvo no cache encontrado.');
+            return;
+        }
+        const data = JSON.parse(dataString);
+        loadCharacterFromData(data);
+        alert('Personagem carregado do cache!');
+    }
+    
+    function downloadCharacterFile() {
+        const data = getCharacterDataAsObject();
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const charName = document.getElementById('char-name').value || 'personagem';
+        a.href = url;
+        a.download = `${charName.replace(/\s+/g, '_')}-projeto141.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function uploadCharacterFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                loadCharacterFromData(data);
+                alert('Personagem carregado do arquivo!');
+            } catch (error) {
+                alert('Erro ao carregar o arquivo. Verifique se o arquivo é válido.');
+                console.error("Erro ao parsear JSON:", error);
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // Reset input for re-uploading same file
     }
     
     function clearCharacter() {
@@ -723,4 +770,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
     });
-
+ 
