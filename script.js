@@ -308,6 +308,17 @@ document.addEventListener('DOMContentLoaded', () => {
         "Juggernaut": { ac: 17, addDex: false, maxDex: 0, strReq: 14, stealthDisadvantage: true, primaryAmmo: 8, secondaryAmmo: 5 },
         "Colete Omega": { ac: 18, addDex: false, maxDex: 0, strReq: 15, stealthDisadvantage: true, primaryAmmo: 8, secondaryAmmo: 5 }
     };
+
+    const INJURY_DESCRIPTIONS = {
+        "injury-head": "Desvantagem em TODOS os testes.",
+        "injury-torso": "Recebe dano adicional igual ao bônus de proficiência de ataques sofridos.",
+        "injury-left-arm": "Desvantagem em ataques que exigem precisão.",
+        "injury-right-arm": "Desvantagem em ataques que exigem precisão.",
+        "injury-left-leg": "Metade do deslocamento.",
+        "injury-right-leg": "Metade do deslocamento.",
+        "arms-crippled": "Não pode usar armas de duas mãos ou uma arma em cada mão.",
+        "legs-crippled": "Deslocamento zerado. O operador só pode se arrastar."
+    };
     
     let attributeChart; // Variável global para o gráfico
 
@@ -320,8 +331,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderExhaustion();
         initAttributeChart();
         setupEventListeners();
-        updateSpecializationDropdown(); // Call this initially
+        updateSpecializationDropdown();
         updateSheet();
+        updateInjuryStatus(); // Call on initial load
     }
 
     function populateDropdowns() {
@@ -438,24 +450,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSkills() {
-        const container = document.getElementById('skills');
-        container.innerHTML = '';
-        const sortedSkills = Object.keys(SKILLS).sort();
-        for (const skill of sortedSkills) {
-            const attr = SKILLS[skill];
-            const skillHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="prof-skill-${skill.replace(/\s+/g, '')}" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
-                        <label class="ml-2">${skill} <span class="text-xs text-gray-500">(${attr})</span></label>
-                        <span id="stealth-disadvantage-indicator" class="text-red-400 text-xs ml-2 font-bold hidden">(Desv.)</span>
-                    </div>
-                    <span id="bonus-skill-${skill.replace(/\s+/g, '')}" class="font-bold">+0</span>
-                </div>
-            `;
-            container.innerHTML += skillHTML;
+    const container = document.getElementById('skills');
+    container.innerHTML = '';
+    const sortedSkills = Object.keys(SKILLS).sort();
+    for (const skill of sortedSkills) {
+        const attr = SKILLS[skill];
+        let disadvantageIndicatorHTML = '';
+        if (skill === "Furtividade") {
+            disadvantageIndicatorHTML = `<span id="stealth-disadvantage-indicator" class="text-red-400 text-xs ml-2 font-bold hidden">(Desv.)</span>`;
         }
+        const skillHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input type="checkbox" id="prof-skill-${skill.replace(/\s+/g, '')}" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
+                    <label class="ml-2">${skill} <span class="text-xs text-gray-500">(${attr})</span></label>
+                    ${disadvantageIndicatorHTML}  </div>
+                <span id="bonus-skill-${skill.replace(/\s+/g, '')}" class="font-bold">+0</span>
+            </div>
+        `;
+        container.innerHTML += skillHTML;
     }
+}
 
     function renderExhaustion() {
         const container = document.getElementById('exhaustion-levels');
@@ -473,6 +488,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label for="exhaustion-level-${i+1}">Nível ${i+1}: ${desc}</label>
             </div>
         `).join('');
+    }
+
+    // Função para lidar com o clique na silhueta de ferimentos
+    function handleInjuryClick(event) {
+        const part = event.target.closest('.body-part');
+        if (part) {
+            part.classList.toggle('injured');
+            updateInjuryStatus(); // Atualiza o texto de status
+        }
+    }
+
+    // Nova função para atualizar a lista de status de ferimentos
+    function updateInjuryStatus() {
+        const statusContainer = document.getElementById('critical-injury-status');
+        statusContainer.innerHTML = ''; // Limpa o status atual
+
+        const injuredParts = new Set();
+        document.querySelectorAll('#critical-injury-svg .body-part.injured').forEach(part => {
+            injuredParts.add(part.id);
+        });
+
+        const hasLeftArm = injuredParts.has('injury-left-arm');
+        const hasRightArm = injuredParts.has('injury-right-arm');
+        const hasLeftLeg = injuredParts.has('injury-left-leg');
+        const hasRightLeg = injuredParts.has('injury-right-leg');
+
+        // Lógica para os braços
+        if (hasLeftArm && hasRightArm) {
+            const statusElement = document.createElement('p');
+            statusElement.className = 'text-red-400';
+            statusElement.textContent = `● ${INJURY_DESCRIPTIONS['arms-crippled']}`;
+            statusContainer.appendChild(statusElement);
+        } else {
+            if (hasLeftArm) {
+                const statusElement = document.createElement('p');
+                statusElement.className = 'text-yellow-400';
+                statusElement.textContent = `● ${INJURY_DESCRIPTIONS['injury-left-arm']}`;
+                statusContainer.appendChild(statusElement);
+            }
+            if (hasRightArm) {
+                const statusElement = document.createElement('p');
+                statusElement.className = 'text-yellow-400';
+                statusElement.textContent = `● ${INJURY_DESCRIPTIONS['injury-right-arm']}`;
+                statusContainer.appendChild(statusElement);
+            }
+        }
+
+        // Lógica para as pernas
+        if (hasLeftLeg && hasRightLeg) {
+            const statusElement = document.createElement('p');
+            statusElement.className = 'text-red-400';
+            statusElement.textContent = `● ${INJURY_DESCRIPTIONS['legs-crippled']}`;
+            statusContainer.appendChild(statusElement);
+        } else {
+            if (hasLeftLeg) {
+                const statusElement = document.createElement('p');
+                statusElement.className = 'text-yellow-400';
+                statusElement.textContent = `● ${INJURY_DESCRIPTIONS['injury-left-leg']}`;
+                statusContainer.appendChild(statusElement);
+            }
+            if (hasRightLeg) {
+                const statusElement = document.createElement('p');
+                statusElement.className = 'text-yellow-400';
+                statusElement.textContent = `● ${INJURY_DESCRIPTIONS['injury-right-leg']}`;
+                statusContainer.appendChild(statusElement);
+            }
+        }
+
+        // Lógica para Torso e Cabeça (sempre se aplicam se feridos)
+        if (injuredParts.has('injury-torso')) {
+            const statusElement = document.createElement('p');
+            statusElement.className = 'text-yellow-400';
+            statusElement.textContent = `● ${INJURY_DESCRIPTIONS['injury-torso']}`;
+            statusContainer.appendChild(statusElement);
+        }
+        if (injuredParts.has('injury-head')) {
+            const statusElement = document.createElement('p');
+            statusElement.className = 'text-yellow-400';
+            statusElement.textContent = `● ${INJURY_DESCRIPTIONS['injury-head']}`;
+            statusContainer.appendChild(statusElement);
+        }
+
+        // Mensagem padrão se não houver ferimentos
+        if (statusContainer.innerHTML === '') {
+            statusContainer.innerHTML = '<p class="text-gray-500">Nenhum ferimento crítico ativo.</p>';
+        }
     }
 
     // --- CHART ---
@@ -564,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 nameInput.type = 'password';
                 eyeOpen.classList.add('hidden');
-                eyeClosed.classList.remove('hidden');
+                eyeClosed.remove('hidden');
             }
         });
 
@@ -623,6 +724,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Event delegation for dynamic cards
         document.body.addEventListener('click', handleCardActions);
+        
+        // Adiciona o listener para o clique na silhueta de ferimentos
+        document.getElementById('critical-injury-svg').addEventListener('click', handleInjuryClick);
+        
         document.getElementById('weapons-list').addEventListener('change', (e) => {
             if (e.target && e.target.matches('.weapon-image-upload')) {
                 handleWeaponImageUpload(e);
@@ -926,7 +1031,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const weaponHTML = `
             <div id="${weaponId}" class="card bg-gray-900 p-4 flex flex-col sm:flex-row gap-4 dynamic-card">
-                <!-- View Mode -->
                 <div class="view-mode">
                     <div class="flex gap-4">
                         <div class="weapon-image-container">
@@ -956,7 +1060,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </div>
-                <!-- Edit Mode -->
                 <div class="edit-mode">
                     <div class="flex flex-col sm:flex-row gap-4">
                         <label for="${inputId}" class="weapon-image-container">
@@ -995,7 +1098,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const equipId = `equip-${id}`;
         const equipHTML = `
             <div id="${equipId}" class="card bg-gray-900 p-3 dynamic-card">
-                <!-- View Mode -->
                 <div class="view-mode">
                     <div class="flex justify-between items-start">
                         <h3 class="text-md font-bold text-white"><span data-value-target="name"></span> (<span data-value-target="qty"></span>)</h3>
@@ -1010,7 +1112,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
                 </div>
-                <!-- Edit Mode -->
                 <div class="edit-mode">
                     <div class="flex items-center gap-3">
                         <input type="text" class="form-input flex-grow" placeholder="Nome do Item" data-value-source="name">
@@ -1052,7 +1153,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const itemHTML = `
              <div id="${itemId}" class="card bg-gray-900 p-3 dynamic-card">
-                <!-- View Mode -->
                 <div class="view-mode">
                     <div class="flex justify-between items-start">
                         <h3 class="text-md font-bold text-white" data-value-target="name">Nome do Item</h3>
@@ -1064,7 +1164,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${usesHTML}
                     <p class="text-gray-300 mt-2 text-sm item-desc-view" data-value-target="desc"></p>
                 </div>
-                <!-- Edit Mode -->
                 <div class="edit-mode">
                     <div class="flex items-center gap-3">
                         <input type="text" class="form-input flex-grow" placeholder="Nome do ${placeholder}" data-value-source="name">
@@ -1179,6 +1278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             portraitSrc: document.getElementById('char-portrait').src,
             backgroundUrl: document.getElementById('background-url-input').value,
             theme: document.body.classList.contains('light-theme') ? 'light' : 'dark',
+            criticalInjuries: [], 
             dynamic: {
                 weapons: [],
                 equipment: [],
@@ -1235,6 +1335,11 @@ document.addEventListener('DOMContentLoaded', () => {
             else if(card.parentElement.id === 'talents-list') data.dynamic.talents.push(item);
             else if(card.parentElement.id === 'traits-list') data.dynamic.traits.push(item);
         });
+
+        document.querySelectorAll('#critical-injury-svg .body-part.injured').forEach(part => {
+            data.criticalInjuries.push(part.id);
+        });
+        
         return data;
     }
 
@@ -1244,6 +1349,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('titles-list').innerHTML = '';
         document.getElementById('talents-list').innerHTML = '';
         document.getElementById('traits-list').innerHTML = '';
+
+        document.querySelectorAll('#critical-injury-svg .body-part').forEach(part => {
+            part.classList.remove('injured');
+        });
 
         for(const id in data.inputs) if(document.getElementById(id)) document.getElementById(id).value = data.inputs[id];
         for(const id in data.checkboxes) if(document.getElementById(id)) document.getElementById(id).checked = data.checkboxes[id];
@@ -1277,12 +1386,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.getElementById('char-race').dispatchEvent(new Event('change'));
-        updateSpecializationDropdown(); // Update spec dropdown based on loaded class
+        updateSpecializationDropdown();
         
         if (data.selects && data.selects['char-specialization']) {
             document.getElementById('char-specialization').value = data.selects['char-specialization'];
         }
-
 
         data.dynamic.weapons.forEach(w => {
             addWeapon();
@@ -1321,8 +1429,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.classList.add('view-state');
             });
         }
+        
+        if (data.criticalInjuries && Array.isArray(data.criticalInjuries)) {
+            data.criticalInjuries.forEach(partId => {
+                const partElement = document.getElementById(partId);
+                if (partElement) {
+                    partElement.classList.add('injured');
+                }
+            });
+        }
 
         updateSheet();
+        updateInjuryStatus();
     }
 
     function saveCharacterToCache() {
@@ -1384,4 +1502,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     init();
-    });
+});

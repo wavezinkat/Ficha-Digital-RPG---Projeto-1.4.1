@@ -254,3 +254,20 @@ input[type="checkbox"]:disabled {
     text-align: center;
     padding: 0;
 }
+
+/* --- Estilos para Ferimento Crítico --- */
+.body-part path {
+    fill: var(--bg-input);
+    stroke: var(--border-color);
+    stroke-width: 2;
+    transition: fill 0.2s ease-in-out;
+}
+
+.body-part:hover path {
+    fill: var(--border-color);
+    cursor: pointer;
+}
+
+.body-part.injured path {
+    fill: var(--danger-color);
+}
