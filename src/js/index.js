@@ -1,25 +1,26 @@
-import { ATTRIBUTES } from './entities/attributes.js';
-import { SKILLS } from './entities/skills.js';
-import { COUNTRIES } from './entities/countries.js';
-import { RACIAL_FEATURES } from './entities/races.js';
-import { CLASSES } from './entities/classes.js';
-import { SPECIALIZATIONS } from './entities/specializations.js';
-import { MUTANT_SUBTYPE_FEATURES } from './entities/mutantSubtypes.js';
-import { COLETES } from './entities/armors.js';
-import { INJURY_DESCRIPTIONS } from './entities/injuries.js';
-import { DigitalSheet } from './core/digitalSheet.js';
+// Main entry point for the RPG Sheet application
+import { CharacterSheet } from "./modules/CharacterSheet.js";
+import { EventManager } from "./modules/EventManager.js";
+import { DataManager } from "./modules/DataManager.js";
+import { UIManager } from "./modules/UIManager.js";
+import { ChartManager } from "./modules/ChartManager.js";
 
-// Temporary bridge: expose data for legacy script until full migration
-window.__RPG_DATA__ = new DigitalSheet({
-    ATTRIBUTES,
-    SKILLS,
-    COUNTRIES,
-    RACIAL_FEATURES,
-    CLASSES,
-    SPECIALIZATIONS,
-    MUTANT_SUBTYPE_FEATURES,
-    COLETES,
-    INJURY_DESCRIPTIONS
+// Initialize the application when DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+	// Initialize all managers
+	const dataManager = new DataManager();
+	const chartManager = new ChartManager();
+	const uiManager = new UIManager();
+	const eventManager = new EventManager();
+
+	// Initialize the main character sheet
+	const characterSheet = new CharacterSheet(
+		dataManager,
+		chartManager,
+		uiManager,
+		eventManager,
+	);
+
+	// Start the application
+	characterSheet.init();
 });
-
-// legacy script loaded separately via HTML 
