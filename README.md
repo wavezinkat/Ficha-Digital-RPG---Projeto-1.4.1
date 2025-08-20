@@ -21,7 +21,7 @@ src/
 │   ├── armors.entity.js           # Armor/equipment data
 │   ├── countries.entity.js        # Nationalities
 │   ├── injuries.entity.js         # Injury descriptions
-│   ├── mutantSubtypes.entity.js   # Mutant features
+│   ├── mutantSubtypes.entity.js   # Mutant Subtype features
 │   ├── races.entity.js            # Racial features
 │   ├── skills.entity.js           # Skills & proficiencies
 │   ├── specializations.entity.js  # Class specializations
