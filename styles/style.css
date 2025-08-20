@@ -191,6 +191,14 @@ input[type="checkbox"]:disabled {
 	margin-left: auto;
 	margin-right: auto;
 }
+#score-for,
+#score-dex,
+#score-int,
+#score-con,
+#score-sab,
+#score-cha {
+	text-align: center;
+}
 /* Custom Dropdown for Flags */
 .custom-select-container {
 	position: relative;
