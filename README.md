@@ -7,7 +7,7 @@ A modern, modular digital character sheet for tabletop RPGs, built with vanilla 
 src/
 ├── js/
 │   ├── models/                    # Main index
-│   │   └── CharacterSheet.js      # Main exporter
+│   │   └── index.js               # Main exporter
 │   ├── modules/                    # Core application logic
 │   │   ├── CharacterSheet.js      # Main orchestrator
 │   │   ├── DataManager.js         # Data operations & calculations
