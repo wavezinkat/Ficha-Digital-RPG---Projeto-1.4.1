@@ -4,24 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto 1.4.1</title>
-    <!-- Favicon (ícone da aba) -->
     <link id="favicon" rel="icon" type="image/png" href="https://i.ibb.co/kLc5wcC/imagem-2025-08-17-013323772.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Link para o arquivo CSS externo -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <!-- HEADER -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-white mb-4 md:mb-0 flex-grow flex items-center">
-                <!-- Logo -->
                 <img src="https://i.ibb.co/kVbkv06v/Capa-frente-removebg-preview-removebg-preview.png" alt="Logo Projeto 141" class="h-24 mr-4">
-                <span class="hidden sm:inline header-title">// Ficha de Operador</span>
+                <span class="title">Ficha de Operador</span>
             </h1>
             <div class="flex items-center space-x-4">
                 <div class="flex space-x-2">
@@ -29,14 +25,14 @@
                     <button id="load-btn" class="btn btn-secondary" title="Carrega o personagem do cache do navegador">Carregar Rápido</button>
                     <button id="clear-btn" class="btn btn-danger">Limpar Ficha</button>
                 </div>
-                <div id="char-portrait-container" class="w-20 h-20 bg-gray-800 border-2 border-gray-700 rounded-full flex items-center justify-center text-gray-500 overflow-hidden shrink-0">
+                <div id="char-portrait-container" class="w-20 h-20 bg-gray-800 border-2 border-gray-700 rounded-full flex items-center justify-center text-gray-500 overflow-hidden shrink-0 cursor-pointer hover:border-gray-500 transition-colors" title="Clique para alterar a imagem do perfil">
                     <img id="char-portrait" src="" class="hidden w-full h-full object-cover">
                     <svg id="portrait-placeholder" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
+                <input type="file" id="char-portrait-upload" accept="image/*" class="hidden">
             </div>
         </div>
 
-        <!-- TABS -->
         <div class="mb-6 border-b border-gray-700">
             <nav class="flex flex-wrap -mb-px space-x-4" aria-label="Tabs">
                 <button class="tab-btn active" data-tab="principal">Principal</button>
@@ -48,12 +44,9 @@
             </nav>
         </div>
 
-        <!-- CONTENT -->
         <main>
-            <!-- PRINCIPAL TAB -->
             <div id="principal" class="tab-content active">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Coluna 1: Informações Básicas -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="card">
                             <h2 class="text-xl font-semibold mb-4 text-white card-title">Identificação do Operador</h2>
@@ -114,7 +107,6 @@
                         </div>
                     </div>
 
-                    <!-- Coluna 2: Atributos e Perícias -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="card">
                             <h2 class="text-xl font-semibold mb-4 text-white card-title">Atributos</h2>
@@ -129,7 +121,6 @@
                         </div>
                     </div>
 
-                    <!-- Coluna 3: Combate e Vitalidade -->
                     <div class="lg:col-span-1 space-y-6">
                         <div class="card">
                             <h2 class="text-xl font-semibold mb-4 text-white card-title">Vitalidade</h2>
@@ -225,6 +216,33 @@
                             </div>
                         </div>
                         <div class="card">
+                            <h2 class="text-xl font-semibold mb-4 text-white card-title">Ferimento Crítico</h2>
+                            <div id="critical-injury-container" class="flex justify-center">
+                                <svg id="critical-injury-svg" width="180" height="300" viewBox="0 0 245 495" xmlns="http://www.w3.org/2000/svg">
+                                    <g id="injury-head" class="body-part" data-part-name="Cabeça">
+                                        <path d="M122.5,88.5 C147.5,88.5 159.5,72.5 159.5,53 C159.5,33.5 147,15 122.5,15 C98,15 85.5,33.5 85.5,53 C85.5,72.5 97.5,88.5 122.5,88.5 Z"/>
+                                    </g>
+                                    <g id="injury-left-arm" class="body-part" data-part-name="Braço Esquerdo">
+                                        <path d="M85.5,103.5 L77,111.5 L60.5,103.5 L53,131 L38,247.5 L20.5,263 L28.5,273 L50,266.5 L62,149.5 L73,124 L85.5,110.5 V 103.5 Z"/>
+                                    </g>
+                                    <g id="injury-right-arm" class="body-part" data-part-name="Braço Direito">
+                                        <path d="M159.5,103.5 L168,111.5 L184.5,103.5 L192,131 L207,247.5 L224.5,263 L216.5,273 L195,266.5 L183,149.5 L172,124 L159.5,110.5 V 103.5 Z"/>
+                                    </g>
+                                    <g id="injury-left-leg" class="body-part" data-part-name="Perna Esquerda">
+                                        <path d="M110.5,280.5 L112.5,413.5 L101,475.5 L79,481 L75.5,472 L89.5,417 L95.5,280.5 H 110.5 Z"/>
+                                    </g>
+                                    <g id="injury-right-leg" class="body-part" data-part-name="Perna Direita">
+                                        <path d="M134.5,280.5 L132.5,413.5 L144,475.5 L166,481 L169.5,472 L155.5,417 L149.5,280.5 H 134.5 Z"/>
+                                    </g>
+                                    <g id="injury-torso" class="body-part" data-part-name="Torso">
+                                        <path d="M122.5,90.5 C138.5,90.5 159.5,98.5 159.5,103.5 V 151.5 L149.5,280.5 H 95.5 L85.5,151.5 V 103.5 C85.5,98.5 106.5,90.5 122.5,90.5 Z"/>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div id="critical-injury-status" class="mt-4 border-t border-gray-700 pt-3 space-y-2 text-sm">
+                                </div>
+                        </div>
+                        <div class="card">
                             <h2 class="text-xl font-semibold mb-4 text-white card-title">Salvaguardas & Exaustão</h2>
                             <div>
                                 <label class="text-sm font-medium">Salvaguardas de Morte</label>
@@ -252,7 +270,6 @@
                 </div>
             </div>
 
-            <!-- COMBATE TAB -->
             <div id="combate" class="tab-content">
                 <div class="card">
                     <div class="flex justify-between items-center mb-4">
@@ -260,12 +277,10 @@
                         <button id="add-weapon-btn" class="btn btn-primary">Adicionar Arma</button>
                     </div>
                     <div id="weapons-list" class="space-y-4">
-                        <!-- Weapon entries will be added here -->
-                    </div>
+                        </div>
                 </div>
             </div>
             
-            <!-- HABILIDADES TAB -->
             <div id="habilidades" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
@@ -298,7 +313,6 @@
                 </div>
             </div>
 
-            <!-- INVENTÁRIO TAB -->
             <div id="inventario" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
@@ -307,8 +321,7 @@
                             <button id="add-equipment-btn" class="btn btn-primary">Adicionar Item</button>
                         </div>
                         <div id="equipment-list" class="space-y-2">
-                            <!-- Equipment items will be added here -->
-                        </div>
+                            </div>
                     </div>
                     <div class="card">
                         <h2 class="text-xl font-semibold text-white card-title">Dinheiro</h2>
@@ -320,7 +333,6 @@
                 </div>
             </div>
             
-            <!-- NOTAS TAB -->
             <div id="notas" class="tab-content">
                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-6">
@@ -344,7 +356,6 @@
                 </div>
             </div>
 
-            <!-- SALVAR/CARREGAR TAB -->
             <div id="salvar-carregar" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
@@ -392,7 +403,6 @@
         </main>
     </div>
 
-    <!-- Link para o arquivo JavaScript externo -->
-    <script src="script.js" defer></script>
+    <script type="module" src="/src/js/index.js"></script>
 </body>
 </html>
