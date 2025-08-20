@@ -69,7 +69,7 @@ export const SPECIALIZATIONS = {
 			},
 		],
 	},
-	"Corpo a corpo": {
+	"Corpo-a-Corpo": {
 		Espadachim: [
 			{
 				name: "ARMA",

@@ -124,6 +124,7 @@ export const COUNTRIES = {
 	PT: "Portugal",
 	KE: "Quênia",
 	GB: "Reino Unido",
+	"GB-SCT": "Escócia",
 	CZ: "República Tcheca",
 	RO: "Romênia",
 	RW: "Ruanda",

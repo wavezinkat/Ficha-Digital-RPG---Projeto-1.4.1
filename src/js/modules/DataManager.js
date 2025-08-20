@@ -97,12 +97,9 @@ export class DataManager {
 		document.getElementById("char-ac").textContent =
 			coleteAC + shieldBonus + otherAcBonus;
 
-		// Handle STR requirement
-		const strScoreEl = document.getElementById("score-for");
-		if (selectedColete.strReq > (parseInt(strScoreEl.value) || 0)) {
-			strScoreEl.classList.add("str-req-failed");
-		} else {
-			strScoreEl.classList.remove("str-req-failed");
+		// Update armor dropdown based on current strength
+		if (this.uiManager) {
+			this.uiManager.updateColeteDropdown();
 		}
 
 		// Handle Stealth Disadvantage
@@ -284,29 +281,108 @@ export class DataManager {
 	}
 
 	loadCharacterFromData(data) {
-		// Clear existing data
-		this.clearExistingData();
+		try {
+			console.log("Loading character data:", data);
 
-		// Load form data
-		this.loadFormData(data);
+			// Validate data structure
+			if (!this.validateCharacterData(data)) {
+				throw new Error("Estrutura de dados do personagem inválida");
+			}
 
-		// Load dynamic data
-		this.loadDynamicData(data);
+			// Clear existing data
+			this.clearExistingData();
 
-		// Load critical injuries
-		this.loadCriticalInjuries(data);
+			// Load form data
+			this.loadFormData(data);
 
-		// Update UI
-		document.getElementById("char-race").dispatchEvent(new Event("change"));
-		this.uiManager.updateSpecializationDropdown();
+			// Load dynamic data
+			this.loadDynamicData(data);
 
-		if (data.selects && data.selects["char-specialization"]) {
-			document.getElementById("char-specialization").value =
-				data.selects["char-specialization"];
+			// Load critical injuries
+			this.loadCriticalInjuries(data);
+
+			// Update UI
+			const raceSelect = document.getElementById("char-race");
+			if (raceSelect) {
+				raceSelect.dispatchEvent(new Event("change"));
+			}
+
+			if (this.uiManager && this.uiManager.updateSpecializationDropdown) {
+				this.uiManager.updateSpecializationDropdown();
+			}
+
+			if (data.selects && data.selects["char-specialization"]) {
+				const specSelect = document.getElementById("char-specialization");
+				if (specSelect) {
+					specSelect.value = data.selects["char-specialization"];
+				}
+			}
+
+			// Trigger sheet update through event system
+			document.dispatchEvent(new CustomEvent("updateSheet"));
+
+			if (this.uiManager && this.uiManager.updateInjuryStatus) {
+				this.uiManager.updateInjuryStatus();
+			}
+
+			console.log("Character data loaded successfully");
+		} catch (error) {
+			console.error("Error loading character data:", error);
+			alert("Erro ao carregar o personagem: " + error.message);
+		}
+	}
+
+	validateCharacterData(data) {
+		// Basic validation - check if data has the expected structure
+		if (!data || typeof data !== "object") {
+			console.error("Data is not an object:", data);
+			return false;
 		}
 
-		this.updateSheet();
-		this.uiManager.updateInjuryStatus();
+		// Check for required top-level properties
+		const requiredProps = [
+			"inputs",
+			"checkboxes",
+			"textareas",
+			"selects",
+			"dynamic",
+		];
+		for (const prop of requiredProps) {
+			if (!(prop in data)) {
+				console.error(`Missing required property: ${prop}`);
+				return false;
+			}
+		}
+
+		// Check if dynamic property has the expected structure
+		if (!data.dynamic || typeof data.dynamic !== "object") {
+			console.error("Dynamic property is not an object:", data.dynamic);
+			return false;
+		}
+
+		const requiredDynamicProps = [
+			"weapons",
+			"equipment",
+			"titles",
+			"talents",
+			"traits",
+		];
+		for (const prop of requiredDynamicProps) {
+			if (!(prop in data.dynamic)) {
+				console.error(`Missing required dynamic property: ${prop}`);
+				return false;
+			}
+			if (!Array.isArray(data.dynamic[prop])) {
+				console.error(
+					`Dynamic property ${prop} is not an array:`,
+					data.dynamic[prop],
+				);
+				return false;
+			}
+		}
+
+		console.log("Character data validation passed");
+		return true;
 	}
 
 	clearExistingData() {
@@ -339,64 +415,118 @@ export class DataManager {
 
 		// Handle nationality
 		if (data.nationality) {
-			// We'll handle this in the main load method
+			const nationalityInput = document.getElementById("char-nationality");
+			if (nationalityInput) {
+				nationalityInput.value = data.nationality;
+				// Update the nationality button display
+				this.updateNationalityDisplay(data.nationality);
+			}
 		}
 
 		// Handle portrait
 		if (data.portraitSrc && data.portraitSrc.startsWith("data:image")) {
-			// We'll handle this in the main load method
+			const portraitImg = document.getElementById("char-portrait");
+			const placeholderIcon = document.getElementById("portrait-placeholder");
+			if (portraitImg && placeholderIcon) {
+				portraitImg.src = data.portraitSrc;
+				portraitImg.classList.remove("hidden");
+				placeholderIcon.classList.add("hidden");
+			}
 		}
 
 		// Handle background
 		if (data.backgroundUrl) {
-			// We'll handle this in the main load method
+			document.getElementById("background-url-input").value =
+				data.backgroundUrl;
+			// Apply the background
+			document.documentElement.style.setProperty(
+				"--bg-url",
+				`url('${data.backgroundUrl}')`,
+			);
 		}
 
 		// Handle theme
 		if (data.theme) {
-			// We'll handle this in the main load method
+			document.body.classList.toggle("light-theme", data.theme === "light");
+			document.getElementById("theme-selector").value = data.theme;
 		}
 	}
 
 	loadDynamicData(data) {
 		// Load weapons
-		data.dynamic.weapons.forEach((w) => {
-			this.uiManager.addWeapon();
-			const card = document.querySelector("#weapons-list > div:last-child");
-			Object.assign(card.dataset, w);
-			this.uiManager.updateCardView(card);
-			card.classList.add("view-state");
-		});
+		if (
+			data.dynamic &&
+			data.dynamic.weapons &&
+			Array.isArray(data.dynamic.weapons)
+		) {
+			data.dynamic.weapons.forEach((w) => {
+				this.uiManager.addWeapon();
+				const card = document.querySelector("#weapons-list > div:last-child");
+				if (card) {
+					Object.assign(card.dataset, w);
+					this.uiManager.updateCardView(card);
+					card.classList.add("view-state");
+				}
+			});
+		}
 
 		// Load equipment
-		data.dynamic.equipment.forEach((e) => {
-			this.uiManager.addEquipment();
-			const card = document.querySelector("#equipment-list > div:last-child");
-			Object.assign(card.dataset, e);
-			this.uiManager.updateCardView(card);
-			card.classList.add("view-state");
-		});
+		if (
+			data.dynamic &&
+			data.dynamic.equipment &&
+			Array.isArray(data.dynamic.equipment)
+		) {
+			data.dynamic.equipment.forEach((e) => {
+				this.uiManager.addEquipment();
+				const card = document.querySelector("#equipment-list > div:last-child");
+				if (card) {
+					Object.assign(card.dataset, e);
+					this.uiManager.updateCardView(card);
+					card.classList.add("view-state");
+				}
+			});
+		}
 
 		// Load titles
-		data.dynamic.titles.forEach((t) => {
-			this.uiManager.addGenericItem("titles-list", "Título");
-			const card = document.querySelector("#titles-list > div:last-child");
-			Object.assign(card.dataset, t);
-			this.uiManager.updateCardView(card);
-			card.classList.add("view-state");
-		});
+		if (
+			data.dynamic &&
+			data.dynamic.titles &&
+			Array.isArray(data.dynamic.titles)
+		) {
+			data.dynamic.titles.forEach((t) => {
+				this.uiManager.addGenericItem("titles-list", "Título");
+				const card = document.querySelector("#titles-list > div:last-child");
+				if (card) {
+					Object.assign(card.dataset, t);
+					this.uiManager.updateCardView(card);
+					card.classList.add("view-state");
+				}
+			});
+		}
 
 		// Load talents
-		data.dynamic.talents.forEach((t) => {
-			this.uiManager.addGenericItem("talents-list", "Talento");
-			const card = document.querySelector("#talents-list > div:last-child");
-			Object.assign(card.dataset, t);
-			this.uiManager.updateCardView(card);
-			card.classList.add("view-state");
-		});
+		if (
+			data.dynamic &&
+			data.dynamic.talents &&
+			Array.isArray(data.dynamic.talents)
+		) {
+			data.dynamic.talents.forEach((t) => {
+				this.uiManager.addGenericItem("talents-list", "Talento");
+				const card = document.querySelector("#talents-list > div:last-child");
+				if (card) {
+					Object.assign(card.dataset, t);
+					this.uiManager.updateCardView(card);
+					card.classList.add("view-state");
+				}
+			});
+		}
 
 		// Load traits
-		if (data.dynamic.traits) {
+		if (
+			data.dynamic &&
+			data.dynamic.traits &&
+			Array.isArray(data.dynamic.traits)
+		) {
 			data.dynamic.traits.forEach((t) => {
 				this.uiManager.addGenericItem(
 					"traits-list",
@@ -404,9 +534,11 @@ export class DataManager {
 					!!t.usosMax,
 				);
 				const card = document.querySelector("#traits-list > div:last-child");
-				Object.assign(card.dataset, t);
-				this.uiManager.updateCardView(card);
-				card.classList.add("view-state");
+				if (card) {
+					Object.assign(card.dataset, t);
+					this.uiManager.updateCardView(card);
+					card.classList.add("view-state");
+				}
 			});
 		}
 	}
@@ -420,5 +552,58 @@ export class DataManager {
 				}
 			});
 		}
+	}
+
+	updateNationalityDisplay(nationalityCode) {
+		const nationalityButton = document.getElementById(
+			"char-nationality-button",
+		);
+		if (nationalityButton) {
+			const buttonContent = nationalityButton.querySelector("span");
+			const flagUrl = this.getFlagUrl(nationalityCode);
+			const countryName = this.getCountryName(nationalityCode);
+			buttonContent.innerHTML = `<img src="${flagUrl}" alt="Bandeira de ${countryName}"> <span>${countryName}</span>`;
+		}
+	}
+
+	getFlagUrl(code) {
+		if (code === "OTHER") {
+			return "https://placehold.co/20x15/374151/d1d5db?text=?";
+		} else if (code === "GB-SCT") {
+			// Scotland flag - using a placeholder since flagcdn doesn't support subdivisions
+			return "https://placehold.co/20x15/0065BD/ffffff?text=🏴󠁧󠁢󠁳󠁣󠁴󠁿";
+		} else {
+			return `https://flagcdn.com/w20/${code.toLowerCase()}.png`;
+		}
+	}
+
+	getCountryName(code) {
+		// Import COUNTRIES here since it's not available in DataManager
+		const COUNTRIES = {
+			US: "Estados Unidos",
+			BR: "Brasil",
+			GB: "Reino Unido",
+			"GB-SCT": "Escócia",
+			FR: "França",
+			DE: "Alemanha",
+			IT: "Itália",
+			ES: "Espanha",
+			PT: "Portugal",
+			RU: "Rússia",
+			CN: "China",
+			JP: "Japão",
+			KR: "Coreia do Sul",
+			IN: "Índia",
+			AU: "Austrália",
+			CA: "Canadá",
+			MX: "México",
+			AR: "Argentina",
+			CL: "Chile",
+			CO: "Colômbia",
+			PE: "Peru",
+			VE: "Venezuela",
+			OTHER: "Outro",
+		};
+		return COUNTRIES[code] || "País";
 	}
 }

@@ -57,13 +57,46 @@ export class UIManager {
 	}
 
 	populateColeteDropdown() {
+		this.updateColeteDropdown();
+	}
+
+	updateColeteDropdown() {
 		const coleteSelect = document.getElementById("char-colete");
+		const currentStrength =
+			parseInt(document.getElementById("score-for")?.value) || 10;
+		const currentSelection = coleteSelect.value;
+
+		// Clear existing options
+		coleteSelect.innerHTML = "";
+
+		// Add armor options, filtering by strength requirement
 		Object.keys(COLETES).forEach((c) => {
+			const armor = COLETES[c];
 			const option = document.createElement("option");
 			option.value = c;
 			option.textContent = c;
+
+			// Disable option if strength requirement is not met
+			if (armor.strReq > currentStrength) {
+				option.disabled = true;
+				option.textContent += ` (Força ${armor.strReq}+)`;
+			}
+
 			coleteSelect.appendChild(option);
 		});
+
+		// Check if current selection is still valid
+		const currentOption = coleteSelect.querySelector(
+			`option[value="${currentSelection}"]`,
+		);
+		if (currentOption && !currentOption.disabled) {
+			// If current selection is still valid, keep it
+			coleteSelect.value = currentSelection;
+		} else if (currentOption && currentOption.disabled) {
+			// If current selection is now disabled, select "Nenhum" and trigger change event
+			coleteSelect.value = "Nenhum";
+			coleteSelect.dispatchEvent(new Event("change"));
+		}
 	}
 
 	createNationalityDropdown() {
@@ -79,24 +112,125 @@ export class UIManager {
                 </span>
                 <svg class="w-5 h-5 ml-2 -mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
             </button>`;
-		const optionsHTML = `<div id="${dropdownId}-options" class="custom-select-options hidden"></div>`;
+		const optionsHTML = `
+            <div id="${dropdownId}-options" class="custom-select-options hidden">
+                <div class="search-container p-2 border-b border-gray-600">
+                    <input type="text" id="${dropdownId}-search" class="w-full px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400" placeholder="Buscar país...">
+                </div>
+                <div id="${dropdownId}-options-list" class="max-h-48 overflow-y-auto"></div>
+            </div>`;
 		nationalityContainer.innerHTML =
 			`<input type="hidden" id="${dropdownId}" value="US">` +
 			buttonHTML +
 			optionsHTML;
 
-		const optionsContainer = document.getElementById(`${dropdownId}-options`);
+		this.populateNationalityOptions(dropdownId);
+		this.setupNationalitySearch(dropdownId);
+	}
+
+	populateNationalityOptions(dropdownId) {
+		const optionsContainer = document.getElementById(
+			`${dropdownId}-options-list`,
+		);
 		for (const code in COUNTRIES) {
 			const optionDiv = document.createElement("div");
 			optionDiv.classList.add("custom-select-option");
 			optionDiv.dataset.value = code;
-			const flagUrl =
-				code === "OTHER"
-					? "https://placehold.co/20x15/374151/d1d5db?text=?"
-					: `https://flagcdn.com/w20/${code.toLowerCase()}.png`;
+			let flagUrl;
+			if (code === "OTHER") {
+				flagUrl = "https://placehold.co/20x15/374151/d1d5db?text=?";
+			} else if (code === "GB-SCT") {
+				// Scotland flag - using a placeholder since flagcdn doesn't support subdivisions
+				flagUrl = "https://placehold.co/20x15/0065BD/ffffff?text=🏴󠁧󠁢󠁳󠁣󠁴󠁿";
+			} else {
+				flagUrl = `https://flagcdn.com/w20/${code.toLowerCase()}.png`;
+			}
 			optionDiv.innerHTML = `<img src="${flagUrl}" alt="Bandeira de ${COUNTRIES[code]}"> <span>${COUNTRIES[code]}</span>`;
 			optionsContainer.appendChild(optionDiv);
 		}
+	}
+
+	setupNationalitySearch(dropdownId) {
+		const searchInput = document.getElementById(`${dropdownId}-search`);
+		const optionsList = document.getElementById(`${dropdownId}-options-list`);
+		const optionsContainer = document.getElementById(`${dropdownId}-options`);
+
+		searchInput.addEventListener("keyup", function (e) {
+			const filter = searchInput.value.toLowerCase();
+			let visibleCount = 0;
+
+			optionsList
+				.querySelectorAll(".custom-select-option")
+				.forEach((option) => {
+					const countryName = option
+						.querySelector("span")
+						.textContent.toLowerCase();
+					if (countryName.includes(filter)) {
+						option.classList.remove("hidden");
+						visibleCount++;
+					} else {
+						option.classList.add("hidden");
+					}
+				});
+
+			// Show/hide no results message
+			let noResultsMsg = optionsList.querySelector(".no-results");
+			if (visibleCount === 0 && filter.length > 0) {
+				if (!noResultsMsg) {
+					noResultsMsg = document.createElement("div");
+					noResultsMsg.className =
+						"no-results p-3 text-center text-gray-400 text-sm";
+					noResultsMsg.textContent = "Nenhum país encontrado";
+					optionsList.appendChild(noResultsMsg);
+				}
+			} else if (noResultsMsg) {
+				noResultsMsg.remove();
+			}
+
+			// Handle Enter key to select first visible option
+			if (e.key === "Enter" && visibleCount > 0) {
+				const firstVisibleOption = optionsList.querySelector(
+					".custom-select-option:not(.hidden)",
+				);
+				if (firstVisibleOption) {
+					firstVisibleOption.click();
+				}
+			}
+		});
+
+		// Handle Escape key to close dropdown
+		searchInput.addEventListener("keydown", function (e) {
+			if (e.key === "Escape") {
+				optionsContainer.classList.add("hidden");
+			}
+		});
+
+		// Clear search when dropdown closes
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (
+					mutation.type === "attributes" &&
+					mutation.attributeName === "class"
+				) {
+					if (optionsContainer.classList.contains("hidden")) {
+						searchInput.value = "";
+						// Show all options again
+						optionsList
+							.querySelectorAll(".custom-select-option")
+							.forEach((option) => {
+								option.classList.remove("hidden");
+							});
+						// Remove no results message
+						const noResultsMsg = optionsList.querySelector(".no-results");
+						if (noResultsMsg) {
+							noResultsMsg.remove();
+						}
+					}
+				}
+			});
+		});
+
+		observer.observe(optionsContainer, { attributes: true });
 	}
 
 	updateSpecializationDropdown() {

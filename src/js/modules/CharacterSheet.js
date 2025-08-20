@@ -8,6 +8,7 @@ export class CharacterSheet {
 
 		// Connect managers to each other
 		this.eventManager.setManagers(uiManager, dataManager, chartManager);
+		this.dataManager.uiManager = uiManager;
 	}
 
 	init() {

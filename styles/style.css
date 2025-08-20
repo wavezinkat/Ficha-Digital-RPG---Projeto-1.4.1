@@ -78,9 +78,30 @@ body {
 	background-color: var(--bg-input-disabled);
 	cursor: not-allowed;
 }
+
+/* Style for disabled select options */
+select option:disabled {
+	color: var(--text-secondary);
+	font-style: italic;
+	background-color: var(--bg-input-disabled);
+}
 input[type="checkbox"]:disabled {
 	opacity: 0.7;
 	cursor: not-allowed;
+}
+.title {
+	background-color: var(--bg-card);
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -2px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	transition:
+		background-color 0.2s,
+		border-color 0.2s;
 }
 .card {
 	background-color: var(--bg-card);
@@ -170,10 +191,6 @@ input[type="checkbox"]:disabled {
 	margin-left: auto;
 	margin-right: auto;
 }
-.str-req-failed {
-	border-color: var(--danger-color) !important;
-	box-shadow: 0 0 0 2px var(--danger-color);
-}
 /* Custom Dropdown for Flags */
 .custom-select-container {
 	position: relative;
@@ -197,19 +214,49 @@ input[type="checkbox"]:disabled {
 	border: 1px solid var(--border-color);
 	border-radius: 0.375rem;
 	width: 100%;
-	max-height: 200px;
-	overflow-y: auto;
+	max-height: 300px;
+	overflow: hidden;
 	z-index: 10;
 	margin-top: 4px;
+	box-shadow:
+		0 10px 15px -3px rgba(0, 0, 0, 0.1),
+		0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.search-container {
+	background-color: var(--bg-card);
+	border-bottom: 1px solid var(--border-color);
+}
+.search-container input {
+	background-color: var(--bg-input);
+	border-color: var(--border-color);
+	color: var(--text-primary);
+}
+.search-container input:focus {
+	outline: none;
+	border-color: var(--accent-color);
+	box-shadow: 0 0 0 2px var(--accent-color);
+}
+.search-container input::placeholder {
+	color: var(--text-secondary);
 }
 .custom-select-option {
 	display: flex;
 	align-items: center;
 	padding: 0.5rem 0.75rem;
 	cursor: pointer;
+	transition: background-color 0.2s ease;
 }
 .custom-select-option:hover {
 	background-color: var(--border-color);
+}
+.custom-select-option.hidden {
+	display: none;
+}
+
+.no-results {
+	color: var(--text-secondary);
+	font-style: italic;
+	border-top: 1px solid var(--border-color);
 }
 
 /* Weapon Image Styles */
@@ -285,4 +332,19 @@ input[type="checkbox"]:disabled {
 
 .body-part.injured path {
 	fill: var(--danger-color);
+}
+
+/* --- Estilos para o Container do Retrato --- */
+#char-portrait-container {
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+}
+
+#char-portrait-container:hover {
+	border-color: var(--accent-color);
+	transform: scale(1.05);
+}
+
+#char-portrait-container:active {
+	transform: scale(0.95);
 }

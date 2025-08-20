@@ -18,6 +18,7 @@ export class EventManager {
 		this.setupTabEvents();
 		this.setupInputEvents();
 		this.setupImageAndThemeEvents();
+		this.setupProfileImageEvents();
 		this.setupNameVisibilityToggle();
 		this.setupDropdownEvents();
 		this.setupAddButtonEvents();
@@ -85,6 +86,20 @@ export class EventManager {
 		document
 			.getElementById("theme-selector")
 			.addEventListener("change", (e) => this.applyTheme(e.target.value));
+	}
+
+	setupProfileImageEvents() {
+		// Click on profile container triggers file upload
+		document
+			.getElementById("char-portrait-container")
+			.addEventListener("click", () => {
+				document.getElementById("char-portrait-upload").click();
+			});
+
+		// Handle profile image upload
+		document
+			.getElementById("char-portrait-upload")
+			.addEventListener("change", this.handleProfileImageUpload.bind(this));
 	}
 
 	setupNameVisibilityToggle() {
@@ -186,6 +201,11 @@ export class EventManager {
 
 		nationalityButton.addEventListener("click", () => {
 			nationalityOptions.classList.toggle("hidden");
+			// Focus on search input when dropdown opens
+			const searchInput = document.getElementById("char-nationality-search");
+			if (searchInput && !nationalityOptions.classList.contains("hidden")) {
+				setTimeout(() => searchInput.focus(), 100);
+			}
 		});
 
 		nationalityOptions.addEventListener("click", (e) => {
@@ -199,6 +219,14 @@ export class EventManager {
 				nationalityOptions.classList.add("hidden");
 			}
 		});
+
+		// Prevent dropdown from closing when clicking on search input
+		const searchInput = document.getElementById("char-nationality-search");
+		if (searchInput) {
+			searchInput.addEventListener("click", (e) => {
+				e.stopPropagation();
+			});
+		}
 
 		window.addEventListener("click", (e) => {
 			if (
@@ -235,6 +263,22 @@ export class EventManager {
 
 	// Event handlers
 	handleImageUpload(event) {
+		const file = event.target.files[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			const portraitImg = document.getElementById("char-portrait");
+			const placeholderIcon = document.getElementById("portrait-placeholder");
+
+			portraitImg.src = e.target.result;
+			portraitImg.classList.remove("hidden");
+			if (placeholderIcon) placeholderIcon.classList.add("hidden");
+		};
+		reader.readAsDataURL(file);
+	}
+
+	handleProfileImageUpload(event) {
 		const file = event.target.files[0];
 		if (!file) return;
 
@@ -328,22 +372,41 @@ export class EventManager {
 	}
 
 	loadCharacterFromCache() {
-		if (!this.dataManager) return;
+		if (!this.dataManager) {
+			console.error("DataManager not available");
+			alert("Erro: DataManager não está disponível");
+			return;
+		}
 
 		const dataString = localStorage.getItem("projeto141Character");
 		if (!dataString) {
 			alert("Nenhum personagem salvo no cache encontrado.");
 			return;
 		}
-		const data = JSON.parse(dataString);
-		this.dataManager.loadCharacterFromData(data);
-		alert("Personagem carregado do cache!");
+
+		try {
+			console.log("Loading character from cache...");
+			const data = JSON.parse(dataString);
+			console.log("Parsed cache data:", data);
+
+			this.dataManager.loadCharacterFromData(data);
+			alert("Personagem carregado do cache!");
+		} catch (error) {
+			console.error("Error loading from cache:", error);
+			alert("Erro ao carregar do cache: " + error.message);
+		}
 	}
 
 	downloadCharacterFile() {
-		if (!this.dataManager) return;
+		if (!this.dataManager) {
+			console.error("DataManager not available");
+			alert("Erro: DataManager não está disponível");
+			return;
+		}
 
 		const data = this.dataManager.getCharacterDataAsObject();
+		console.log("Saving character data:", data);
+
 		const dataStr = JSON.stringify(data, null, 2);
 		const blob = new Blob([dataStr], { type: "application/json" });
 		const url = URL.createObjectURL(blob);
@@ -356,25 +419,48 @@ export class EventManager {
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
+
+		console.log("Character file downloaded successfully");
 	}
 
 	uploadCharacterFile(event) {
-		if (!this.dataManager) return;
+		if (!this.dataManager) {
+			console.error("DataManager not available");
+			alert("Erro: DataManager não está disponível");
+			return;
+		}
 
 		const file = event.target.files[0];
-		if (!file) return;
+		if (!file) {
+			console.log("No file selected");
+			return;
+		}
+
+		console.log("Loading character file:", file.name, file.size, "bytes");
 
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			try {
+				console.log("File read successfully, parsing JSON...");
 				const data = JSON.parse(e.target.result);
+				console.log("Parsed character data:", data);
+
 				this.dataManager.loadCharacterFromData(data);
 				alert("Personagem carregado do arquivo!");
 			} catch (error) {
-				alert("Erro ao carregar o arquivo. Verifique se o arquivo é válido.");
-				console.error("Erro ao parsear JSON:", error);
+				console.error("Error parsing character file:", error);
+				alert(
+					"Erro ao carregar o arquivo. Verifique se o arquivo é válido.\n\nDetalhes: " +
+						error.message,
+				);
 			}
 		};
+
+		reader.onerror = (error) => {
+			console.error("Error reading file:", error);
+			alert("Erro ao ler o arquivo. Tente novamente.");
+		};
+
 		reader.readAsText(file);
 		event.target.value = ""; // Reset input for re-uploading same file
 	}

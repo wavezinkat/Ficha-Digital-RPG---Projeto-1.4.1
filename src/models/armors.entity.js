@@ -35,7 +35,7 @@ export const COLETES = {
 		primaryAmmo: 3,
 		secondaryAmmo: 3,
 	},
-	"Roupa reforçada": {
+	"Roupa Reforçada": {
 		ac: 12,
 		addDex: true,
 		maxDex: 2,
@@ -44,7 +44,7 @@ export const COLETES = {
 		primaryAmmo: 3,
 		secondaryAmmo: 4,
 	},
-	"Colete Medio": {
+	"Colete Médio": {
 		ac: 13,
 		addDex: true,
 		maxDex: 2,
@@ -53,7 +53,7 @@ export const COLETES = {
 		primaryAmmo: 4,
 		secondaryAmmo: 4,
 	},
-	"Colete de placa": {
+	"Colete de Placa": {
 		ac: 14,
 		addDex: true,
 		maxDex: 2,
@@ -62,7 +62,7 @@ export const COLETES = {
 		primaryAmmo: 5,
 		secondaryAmmo: 4,
 	},
-	"Colete Tatico": {
+	"Colete Tático": {
 		ac: 14,
 		addDex: true,
 		maxDex: 2,
@@ -80,7 +80,7 @@ export const COLETES = {
 		primaryAmmo: 6,
 		secondaryAmmo: 4,
 	},
-	"Colete reforçado": {
+	"Colete Reforçado": {
 		ac: 15,
 		addDex: false,
 		maxDex: 0,
@@ -107,7 +107,7 @@ export const COLETES = {
 		primaryAmmo: 8,
 		secondaryAmmo: 5,
 	},
-	"Colete Omega": {
+	"Colete Ômega": {
 		ac: 18,
 		addDex: false,
 		maxDex: 0,
