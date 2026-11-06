@@ -24,14 +24,8 @@ wizEl.innerHTML = `<div class="wiz-in"><span class="corner c1"></span><span clas
 document.body.appendChild(wizEl);
 
 // ---------------- tela inicial ----------------
-function savedSummary(key) {
-  const s = store.get(key);
-  if (!s) return null;
-  try {
-    const d = JSON.parse(s), I = d.inputs || {}, S = d.selects || {};
-    return { d, cod: (I["char-codename"] || "").trim() || "SEM CODINOME", lvl: I["char-level"] || "1", cls: S["char-class"] || "", spec: S["char-specialization"] || "", portrait: d.portraitSrc || "" };
-  } catch (e) { return null; }
-}
+const fmtWhen = t => { const d = new Date(t), now = new Date(); const hm = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return d.toDateString() === now.toDateString() ? "HOJE " + hm : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" }) + " " + hm; };
 function buildTitle() {
   const sw = document.querySelector(".start-wrap");
   sw.innerHTML = `<div class="menu2" id="startMenu">
@@ -40,13 +34,13 @@ function buildTitle() {
     </div>
     <div class="hint">↑ ↓ ESCOLHER // ENTER CONFIRMAR</div>
     <div class="load-panel hidden" id="loadPanel">
-      <div class="lp-h">// OPERADOR EXISTENTE</div>
+      <div class="lp-h" id="lpHead">// OPERADORES SALVOS</div>
       <div id="lpList"></div>
-      <label class="lp-it file" id="lpFile">▸ CARREGAR ARQUIVO .JSON<small>FICHA SALVA NESTA VERSÃO OU NA ANTIGA</small><input type="file" accept=".json,application/json"></label>
+      <label class="lp-it file" id="lpFile">▸ IMPORTAR ARQUIVO .JSON<small>ENTRA COMO OPERADOR NOVO NA LISTA // ACEITA A FICHA ANTIGA</small><input type="file" accept=".json,application/json"></label>
       <button class="btn" id="lpBack" data-nosfx>VOLTAR</button>
     </div>`;
-  const a = savedSummary(KEY_AUTO);
-  $("found").innerHTML = a ? `ÚLTIMO REGISTRO: <b>${esc(a.cod.toUpperCase())}</b> // NV ${esc(a.lvl)} // ${esc(a.cls.toUpperCase())}` : "NENHUM REGISTRO LOCAL // NOVO OPERADOR";
+  const L = FICHAS.list(), a = L.find(x => x.id === FICHAS.current) || L[0];
+  $("found").innerHTML = a ? `ÚLTIMO REGISTRO: <b>${esc(a.cod.toUpperCase())}</b> // NV ${esc(a.lvl)} // ${esc(a.cls.toUpperCase())}${L.length > 1 ? ` // +${L.length - 1} SALVO${L.length > 2 ? "S" : ""}` : ""}` : "NENHUM REGISTRO LOCAL // NOVO OPERADOR";
   $("newBtn").onclick = () => { sfx("clique"); chooseNew(); };
   $("rndBtn").onclick = () => { const d = $("rndBtn"); d.classList.remove("roll"); void d.offsetWidth; d.classList.add("roll"); sfx("clique"); setTimeout(() => chooseNew(true), 650); };
   $("oldBtn").onclick = () => { sfx("abrir"); showLoad(true); };
@@ -54,29 +48,44 @@ function buildTitle() {
   $("lpFile").querySelector("input").onchange = e => {
     const f = e.target.files[0]; if (!f) return;
     const r = new FileReader();
-    r.onload = () => { try { const d = JSON.parse(r.result); apply(d); sfx("clique"); enterSheet(); } catch (err) { sfx("errado"); toast("ARQUIVO INVÁLIDO: " + err.message, true); } };
+    r.onload = () => { try { const d = JSON.parse(r.result); const id = FICHAS.create(d); sfx("clique"); toast("IMPORTADO: " + FICHAS.summary(d).cod.toUpperCase()); showLoad(true, id); } catch (err) { sfx("errado"); toast("ARQUIVO INVÁLIDO: " + err.message, true); } };
     r.readAsText(f); e.target.value = "";
   };
 }
-function showLoad(on) {
+function openFicha(id) {
+  const d = FICHAS.get(id);
+  if (!d) { sfx("errado"); toast("REGISTRO NÃO ENCONTRADO", true); return; }
+  try { FICHAS.setCurrent(id); apply(JSON.parse(JSON.stringify(d))); sfx("clique"); enterSheet(); }
+  catch (e) { sfx("errado"); toast("REGISTRO CORROMPIDO: " + e.message, true); }
+}
+function showLoad(on, focusId) {
   $("startMenu").classList.toggle("hidden", on);
   document.querySelector(".hint").classList.toggle("hidden", on);
   $("loadPanel").classList.toggle("hidden", !on);
   if (!on) { $("newBtn").focus(); return; }
-  const rows = [];
-  [[KEY_AUTO, "ÚLTIMA SESSÃO (SALVA SOZINHA)"], [KEY_QUICK, "SALVAMENTO RÁPIDO"]].forEach(([k, lbl]) => {
-    const s = savedSummary(k);
-    if (s) rows.push(`<button class="lp-it" data-key="${k}" data-nosfx>${s.portrait ? `<img src="${esc(s.portrait)}" alt="">` : ""}<span><b>${esc(s.cod.toUpperCase())}</b><small>${lbl} // NV ${esc(s.lvl)} // ${esc((s.cls + " " + s.spec).toUpperCase())}</small></span></button>`);
+  const L = FICHAS.list();
+  $("lpHead").textContent = `// OPERADORES SALVOS // ${L.length}`;
+  $("lpList").innerHTML = L.map(s => `<div class="lp-row${s.id === FICHAS.current ? " cur" : ""}" data-id="${s.id}">
+      <button class="lp-it" data-open="${s.id}" data-nosfx>${s.portrait ? `<img src="${esc(s.portrait)}" alt="">` : `<i class="lp-ph">${esc(s.cod.charAt(0).toUpperCase())}</i>`}<span><b>${esc(s.cod.toUpperCase())}</b><small>NV ${esc(s.lvl)} // ${esc((s.cls + " " + s.spec).trim().toUpperCase() || "SEM CLASSE")}</small><small class="lp-when">SALVO ${fmtWhen(s.updated)}${s.id === FICHAS.current ? " // ÚLTIMO ABERTO" : ""}</small></span></button>
+      <div class="lp-acts"><button class="lp-a" data-dup="${s.id}" title="Duplicar" aria-label="Duplicar" data-nosfx>⧉</button><button class="lp-a" data-exp="${s.id}" title="Exportar .json" aria-label="Exportar" data-nosfx>⤓</button><button class="lp-a del" data-del="${s.id}" title="Apagar" aria-label="Apagar" data-nosfx>✕</button></div>
+    </div>`).join("") || '<div class="lp-none">NENHUM OPERADOR SALVO NESTE APARELHO</div>';
+  const Q = sel => $("lpList").querySelectorAll(sel);
+  Q("[data-open]").forEach(b => b.onclick = () => openFicha(b.dataset.open));
+  Q("[data-dup]").forEach(b => b.onclick = () => { const id = FICHAS.duplicate(b.dataset.dup); sfx("abrir"); toast("OPERADOR DUPLICADO"); showLoad(true, id); });
+  Q("[data-exp]").forEach(b => b.onclick = async () => {
+    sfx("clique"); const d = FICHAS.get(b.dataset.exp);
+    try { const r = await FICHAS.exportJSON(d, FICHAS.summary(d).cod); if (r !== "cancel") toast(r === "share" ? "FICHA PRONTA PARA COMPARTILHAR" : "ARQUIVO GERADO"); } catch (e) { sfx("errado"); toast("NÃO FOI POSSÍVEL EXPORTAR: " + e.message, true); }
   });
-  $("lpList").innerHTML = rows.join("") || '<div class="lp-none">NENHUM OPERADOR NO CACHE DESTE NAVEGADOR</div>';
-  $("lpList").querySelectorAll("[data-key]").forEach(b => {
-    b.onclick = () => { try { apply(JSON.parse(store.get(b.dataset.key))); sfx("clique"); enterSheet(); } catch (e) { sfx("errado"); toast("REGISTRO CORROMPIDO: " + e.message, true); } };
+  Q("[data-del]").forEach(b => b.onclick = async () => {
+    const s = L.find(x => x.id === b.dataset.del); sfx("clique");
+    if (!await ask(`Apagar "${s.cod}" deste aparelho? Isso não tem volta. Se quiser guardar, exporte o .json antes.`, { top: "APAGAR OPERADOR", yes: "APAGAR" })) return;
+    await FICHAS.remove(s.id); sfx("fechar"); toast("OPERADOR APAGADO"); buildTitle(); showLoad(true);
   });
-  ($("lpList").querySelector("button") || $("lpFile")).focus();
+  const f = focusId && $("lpList").querySelector(`[data-open="${focusId}"]`);
+  if (f) { f.closest(".lp-row").classList.add("flash"); f.scrollIntoView({ block: "nearest" }); }
+  (f || $("lpList").querySelector("button") || $("lpFile")).focus();
 }
-async function chooseNew(random) {
-  const a = savedSummary(KEY_AUTO);
-  if (a && !await ask(`Criar um novo operador vai substituir "${a.cod}" na sessão deste navegador. O salvamento rápido continua guardado. Se quiser manter uma cópia, baixe o .json antes.`, { top: random ? "OPERADOR ALEATÓRIO" : "NOVO OPERADOR", yes: "CRIAR NOVO" })) return;
+function chooseNew(random) {
   if (random) openWizard(randomW(), STEPS.length - 1); else openWizard();
 }
 
@@ -103,7 +112,8 @@ function randomW() {
   w.nat = pick(natCodes.filter(c => c !== "OTHER"));
   // atributos: rolagem 4d6, maiores nos atributos de resistência da classe
   w.method = "roll";
-  w.pool = Array.from({ length: 6 }, () => { const x = [d6(6), d6(6), d6(6), d6(6)].sort((a, b) => a - b); return x[1] + x[2] + x[3]; }).sort((a, b) => b - a);
+  // 4d6 descartando o menor, com piso 8 para o operador sair jogável
+  w.pool = Array.from({ length: 6 }, () => { const x = [d6(6), d6(6), d6(6), d6(6)].sort((a, b) => a - b); return Math.max(8, x[1] + x[2] + x[3]); }).sort((a, b) => b - a);
   w.rolledPool = w.pool; w.rolled = true;
   const c = CLASSES[w.cls], pri = [...c.saves, ...(c.choice || [])], order = [...new Set([...shuffle(pri), ...shuffle(ATTR_LIST)])];
   order.forEach((k, i) => w.base[k] = i);
@@ -124,7 +134,7 @@ function randomW() {
 }
 
 // ---------------- voltar para a tela inicial (clique na caveira) ----------------
-function goTitle() {
+function goTitle(openList) {
   if (state !== "sheet") return;
   autosave(); state = "entering"; sfx("fechar");
   if ($("fxPanel").classList.contains("show")) $("fxPanel").classList.remove("show");
@@ -133,17 +143,18 @@ function goTitle() {
     $("sheet").classList.remove("show"); $("dock").classList.remove("show");
     $("titleScreen").style.display = ""; document.body.classList.add("title-on", "locked");
     state = "title"; applyFx(); buildTitle(); window.scrollTo(0, 0);
-    veil(false, () => $("newBtn").focus());
+    if (openList === true) showLoad(true);
+    veil(false, () => { if (openList !== true) $("newBtn").focus(); });
   });
 }
 document.querySelector(".head-logo").title = "Voltar para a tela inicial (a ficha fica salva)";
-document.querySelector(".head-logo").addEventListener("click", goTitle);
+document.querySelector(".head-logo").addEventListener("click", () => goTitle());
 document.addEventListener("keydown", e => {
   if ($("modal").classList.contains("show")) return;
   const k = e.key;
   if (state === "title") {
     const panel = !$("loadPanel").classList.contains("hidden");
-    const items = panel ? [...document.querySelectorAll("#loadPanel .lp-it,#lpBack")] : [$("newBtn"), $("rndBtn"), $("oldBtn")];
+    const items = panel ? [...document.querySelectorAll("#loadPanel .lp-it,#loadPanel .lp-a,#lpBack")] : [$("newBtn"), $("rndBtn"), $("oldBtn")];
     const i = items.indexOf(document.activeElement);
     if (k === "ArrowDown" || k === "ArrowUp") { e.preventDefault(); const n = items[(i + (k === "ArrowDown" ? 1 : items.length - 1)) % items.length]; n.focus(); sfx("hover"); }
     else if (k === "Enter" && i < 0) { e.preventDefault(); items[0].click(); }
@@ -528,6 +539,7 @@ $("wzBack").onclick = async () => {
 
 // ---------------- aplica a criação na ficha ----------------
 function finishWizard() {
+  FICHAS.setCurrent(null);   // operador novo entra como ficha nova na lista
   resetForm();
   const fin = finalScores(), { l2 } = lvlSplit();
   $("char-race").value = W.race; rebuildSub(W.sub, W.halo); $("char-anima").value = W.anima || "";
@@ -683,5 +695,3 @@ function luApply() {
 $("lvlUpBtn").onclick = () => { sfx("clique"); openLevelUp(); };
 wizEl.addEventListener("mouseover", e => { const t = e.target.closest("summary,.lp-it.file"); if (t && !(e.relatedTarget && t.contains(e.relatedTarget))) sfx("hover"); });
 
-buildTitle();
-setTimeout(() => $("newBtn").focus(), 60);
