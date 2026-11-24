@@ -74,7 +74,7 @@ function showLoad(on, focusId) {
   Q("[data-dup]").forEach(b => b.onclick = () => { const id = FICHAS.duplicate(b.dataset.dup); sfx("abrir"); toast("OPERADOR DUPLICADO"); showLoad(true, id); });
   Q("[data-exp]").forEach(b => b.onclick = async () => {
     sfx("clique"); const d = FICHAS.get(b.dataset.exp);
-    try { const r = await FICHAS.exportJSON(d, FICHAS.summary(d).cod); if (r !== "cancel") toast(r === "share" ? "FICHA PRONTA PARA COMPARTILHAR" : "ARQUIVO GERADO"); } catch (e) { sfx("errado"); toast("NÃO FOI POSSÍVEL EXPORTAR: " + e.message, true); }
+    try { const r = await FICHAS.exportJSON(d, FICHAS.summary(d).cod); if (r !== "cancel") toast(r === "share" ? "FICHA PRONTA PARA COMPARTILHAR" : r === "saved" ? "FICHA SALVA NO ARQUIVO ESCOLHIDO" : "ARQUIVO GERADO"); } catch (e) { sfx("errado"); toast("NÃO FOI POSSÍVEL EXPORTAR: " + e.message, true); }
   });
   Q("[data-del]").forEach(b => b.onclick = async () => {
     const s = L.find(x => x.id === b.dataset.del); sfx("clique");
