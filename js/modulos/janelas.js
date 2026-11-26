@@ -18,8 +18,8 @@ const MOD = (() => {
   const ORDER = Object.keys(WINS);
   // larguras padrão (12 colunas) e ordem inicial de cada janela
   const DEF = {
-    principal: [["identificacao", 4], ["atributos", 4], ["vitalidade", 4], ["origem", 4], ["pericias", 4], ["defesas", 4], ["testes-de-resistencia", 4], ["recursos", 4], ["ferimento-critico", 4], ["salvaguardas-exaustao", 4]],
-    combate: [["armamento", 12], ["maleta", 8], ["dinheiro", 4], ["equipamentos", 4], ["itens-de-bolso", 4], ["stash", 12]],
+    principal: [["identificacao", 4], ["atributos", 4], ["descanso", 4], ["defesas", 4], ["origem", 4], ["pericias", 4], ["ferimento-critico", 4], ["testes-de-resistencia", 4], ["salvaguardas-exaustao", 4]],
+    combate: [["armamento", 12], ["maleta", 8], ["recursos", 4], ["equipamentos", 4], ["itens-de-bolso", 4], ["stash", 12]],
     habilidades: [["habilidades-de-raca-classe", 6], ["titulos-de-personagem", 6], ["talentos", 6], ["habilidades-unicas", 6]],
     notas: [["aparencia-personalidade", 6], ["historia-do-personagem", 6], ["aliados-sinergia", 6]],
     // configurações: tamanho e posição fixos
@@ -128,7 +128,7 @@ const MOD = (() => {
     const p = pages[main];
     if (!silent) { p.classList.remove("glitch"); void p.offsetWidth; p.classList.add("glitch"); }
     requestAnimationFrame(() => relayout(main));
-    if (!silent) { const top = $("stage").getBoundingClientRect().top + window.scrollY - $("hud").offsetHeight - 10; if (window.scrollY > top) window.scrollTo({ top }); }
+    if (!silent) { const top = $("stage").getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hud-h")) || 0) - 10; if (window.scrollY > top) window.scrollTo({ top }); }
   }
 
   // ---------------- caixas novas ----------------
